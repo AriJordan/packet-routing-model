@@ -1,6 +1,7 @@
 #[allow(unused_imports)]
 use std::cmp::{min,max};
 use std::io::{BufWriter, stdin, stdout, Write};
+use std::collections::VecDeque;
 
 #[derive(Default)]
 struct Scanner {
@@ -42,6 +43,7 @@ struct Network{
     edges : Vec::<Edge>,
     n_packets : usize,
     packets : Vec::<Packet>,
+    queues : Vec<VecDeque<Packet>>, // i-th queue corresponds to i-th edge
 }
 
 
@@ -93,5 +95,6 @@ fn main() {
         edges : edges,
         n_packets : n_packets,
         packets : packets,
+        queues : vec![VecDeque::new(); n_edges],
     };
 }
