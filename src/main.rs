@@ -33,6 +33,15 @@ struct Packet{
     id : usize,
     release_time : usize,
     path : Vec<usize>,
+    entrance_time : usize,
+}
+
+struct Network{
+    n_vertices : usize,
+    n_edges : usize,
+    edges : Vec::<Edge>,
+    n_packets : usize,
+    packets : Vec::<Packet>,
 }
 
 
@@ -42,7 +51,7 @@ fn main() {
 
     let n_vertices : usize = scan.next::<usize>();
     let n_edges : usize = scan.next::<usize>();
-    let mut network : Vec::<Edge> = Vec::<Edge>::new();
+    let mut edges : Vec::<Edge> = Vec::<Edge>::new();
     for edge_id in 0..n_edges{
         let v_from = scan.next::<usize>();
         assert!(v_from < n_vertices, "vertex indices should be in [0, n_edges)");
@@ -52,7 +61,7 @@ fn main() {
         assert!(length > 0.0, "edge lengths should be positive");
         let capacity = scan.next::<f64>();
         assert!(capacity > 0.0, "edge capacities should be positive");
-        network.push(
+        edges.push(
             Edge{
                 id : edge_id,
                 v_from : v_from,
@@ -74,7 +83,15 @@ fn main() {
                 id : packet_id,
                 release_time : release_time,
                 path : path,
+                entrance_time : 0, // default value
             }
         );
     }
+    let network = Network{
+        n_vertices : n_vertices,
+        n_edges : n_edges,
+        edges : edges,
+        n_packets : n_packets,
+        packets : packets,
+    };
 }
