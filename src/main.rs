@@ -156,4 +156,10 @@ fn main() {
     while network.packets_arrived < network.packets.len(){
         network.timestep();
     }
+
+    write!(out, "Last arrival time:\n{}\n\nIndividual arrival times:", network.arrival_times.iter().max().expect("max failed somehow"));
+
+    for arrival in network.arrival_times{
+        write!(out, "{} ", arrival);
+    }
 }
