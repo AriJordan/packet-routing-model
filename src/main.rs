@@ -41,9 +41,8 @@ struct Packet{
 
 struct Network{
     n_vertices : usize,
-    n_edges : usize,
     edges : Vec::<Edge>,
-    n_packets : usize,
+    edge_to_id : std::collections::HashMap::<(usize, usize), usize>,
     packets : Vec::<Packet>,
     queues : Vec<VecDeque<usize>>, // i-th queue corresponds to i-th edge
     time : usize,
@@ -92,7 +91,7 @@ impl Network{
     // Return: id of edge (v_from, v_to)
     fn get_edge_id(&mut self, v_from : usize, v_to : usize) -> usize{
         // TODO: implement
-        0
+        *self.edge_to_id.get(&(v_from, v_to)).expect("edge doesn't exist")
     }
 }
 
@@ -103,6 +102,7 @@ fn main() {
     let n_vertices : usize = scan.next::<usize>();
     let n_edges : usize = scan.next::<usize>();
     let mut edges : Vec::<Edge> = Vec::<Edge>::new();
+    let mut edge_to_id = std::collections::HashMap::<(usize, usize), usize>::new();
     for edge_id in 0..n_edges{
         let v_from = scan.next::<usize>();
         assert!(v_from < n_vertices, "vertex indices should be in [0, n_edges)");
@@ -121,6 +121,7 @@ fn main() {
                 capacity : capacity,           
             }
         );
+        edge_to_id.insert((v_from, v_to), edge_id);
     }
 
     let n_packets : usize = scan.next::<usize>();
@@ -143,9 +144,8 @@ fn main() {
     }
     let mut network = Network{
         n_vertices : n_vertices,
-        n_edges : n_edges,
         edges : edges,
-        n_packets : n_packets,
+        edge_to_id : edge_to_id,
         packets : packets,
         queues : vec![VecDeque::new(); n_edges],
         time : 0,
