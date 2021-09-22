@@ -47,11 +47,13 @@ struct Network{
     packets : Vec::<Packet>,
     queues : Vec<VecDeque<usize>>, // i-th queue corresponds to i-th edge
     time : usize,
-    packets_arrived : bool,
+    packets_arrived : usize,
+    arrival_times : Vec<usize>,
 }
 
 impl Network{
     fn timestep(&mut self){
+        // TODO: split into two parts: movement and queueing
         for packet_id in 0..self.packets.len(){
             //let &mut packet = &mut self.packets[packet_id];
             if self.packets[packet_id].release_time > self.time{
@@ -72,6 +74,8 @@ impl Network{
                     // TODO: save arrival time
                     self.packets[packet_id].path_position = std::usize::MAX;
                     self.packets[packet_id].edge_id = std::usize::MAX;
+                    self.packets_arrived += 1;
+                    self.arrival_times[packet_id] = self.time;
                 }
                 // packet changes into next edge
                 let p_edge_id = self.get_edge_id(self.packets[packet_id].path[self.packets[packet_id].path_position], self.packets[packet_id].path[self.packets[packet_id].path_position + 1]);
@@ -82,6 +86,7 @@ impl Network{
                 // Do nothing
             }
         }
+        self.time += 1;
     }
 
     // Return: id of edge (v_from, v_to)
@@ -136,7 +141,7 @@ fn main() {
             }
         );
     }
-    let network = Network{
+    let mut network = Network{
         n_vertices : n_vertices,
         n_edges : n_edges,
         edges : edges,
@@ -144,6 +149,11 @@ fn main() {
         packets : packets,
         queues : vec![VecDeque::new(); n_edges],
         time : 0,
-        packets_arrived : false,
+        packets_arrived : 0,
+        arrival_times : vec![n_packets; 0],
     };
+
+    while network.packets_arrived < network.packets.len(){
+        network.timestep();
+    }
 }
