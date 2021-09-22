@@ -25,7 +25,7 @@ struct Edge{
     id : usize,
     v_from : usize,
     v_to : usize,
-    length : f64,
+    length : usize,
     capacity : f64,
 }
 
@@ -35,6 +35,8 @@ struct Packet{
     release_time : usize,
     path : Vec<usize>,
     entrance_time : usize,
+    path_position : usize,
+    edge_id : usize,
 }
 
 struct Network{
@@ -43,9 +45,51 @@ struct Network{
     edges : Vec::<Edge>,
     n_packets : usize,
     packets : Vec::<Packet>,
-    queues : Vec<VecDeque<Packet>>, // i-th queue corresponds to i-th edge
+    queues : Vec<VecDeque<usize>>, // i-th queue corresponds to i-th edge
+    time : usize,
+    packets_arrived : bool,
 }
 
+impl Network{
+    fn timestep(&mut self){
+        for packet_id in 0..self.packets.len(){
+            //let &mut packet = &mut self.packets[packet_id];
+            if self.packets[packet_id].release_time > self.time{
+                // Packet not ready yet
+                continue;
+            }
+            else if self.packets[packet_id].release_time == self.time{
+                // Enter first edge on path
+                self.packets[packet_id].entrance_time = self.time;
+                self.packets[packet_id].path_position = self.packets[packet_id].path[0];
+                let p_edge_id = self.get_edge_id(self.packets[packet_id].path[0], self.packets[packet_id].path[1]);
+                self.packets[packet_id].edge_id = p_edge_id;               
+                self.queues[p_edge_id].push_back(packet_id);
+            }
+            else if self.time == self.packets[packet_id].entrance_time + self.edges[self.packets[packet_id].edge_id].length{
+                if self.packets[packet_id].path_position == self.packets[packet_id].path.len() - 1{
+                    // packet at end of path
+                    // TODO: save arrival time
+                    self.packets[packet_id].path_position = std::usize::MAX;
+                    self.packets[packet_id].edge_id = std::usize::MAX;
+                }
+                // packet changes into next edge
+                let p_edge_id = self.get_edge_id(self.packets[packet_id].path[self.packets[packet_id].path_position], self.packets[packet_id].path[self.packets[packet_id].path_position + 1]);
+                let popped_packet_id = self.queues[p_edge_id].pop_front().expect("pop_front() on empty queue called");
+                self.queues[p_edge_id].push_back(popped_packet_id); // TODO: correct order
+            }
+            else{
+                // Do nothing
+            }
+        }
+    }
+
+    // Return: id of edge (v_from, v_to)
+    fn get_edge_id(&mut self, v_from : usize, v_to : usize) -> usize{
+        // TODO: implement
+        0
+    }
+}
 
 fn main() {
     let mut scan = Scanner::default();
@@ -59,8 +103,8 @@ fn main() {
         assert!(v_from < n_vertices, "vertex indices should be in [0, n_edges)");
         let v_to = scan.next::<usize>();
         assert!(v_to < n_vertices, "vertex indices should be in [0, n_edges)");
-        let length = scan.next::<f64>();
-        assert!(length > 0.0, "edge lengths should be positive");
+        let length = scan.next::<usize>();
+        assert!(length > 0, "edge lengths should be positive");
         let capacity = scan.next::<f64>();
         assert!(capacity > 0.0, "edge capacities should be positive");
         edges.push(
@@ -80,12 +124,15 @@ fn main() {
         let release_time = scan.next::<usize>();
         let path_length = scan.next::<usize>();
         let path : Vec<usize> = (0..path_length).map(|_| scan.next::<usize>()).collect();
+        assert!(path.len() >= 2, "paths should have length at least 2");
         packets.push(
             Packet{
                 id : packet_id,
                 release_time : release_time,
                 path : path,
-                entrance_time : 0, // default value
+                entrance_time : std::usize::MAX, // default value
+                path_position : std::usize::MAX, // default value
+                edge_id : std::usize::MAX, // default value
             }
         );
     }
@@ -96,5 +143,7 @@ fn main() {
         n_packets : n_packets,
         packets : packets,
         queues : vec![VecDeque::new(); n_edges],
+        time : 0,
+        packets_arrived : false,
     };
 }
