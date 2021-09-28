@@ -121,6 +121,16 @@ impl Network{
     }
 }
 
+fn vertex_path_to_edge_path(vertex_path : Vec<usize>, edge_to_id : &std::collections::HashMap::<(usize, usize), usize>) -> Vec<EdgeId>{
+    assert!(vertex_path.len() > 0);
+    let mut edge_path = Vec::<EdgeId>::new();
+    for id in 0..vertex_path.len(){
+        edge_path.push(edge_to_id[&(vertex_path[id], vertex_path[id + 1])]);
+    }
+    assert_eq!(edge_path.len(), vertex_path.len() - 1);
+    edge_path
+}
+
 fn input() -> Network{
     env::set_var("RUST_BACKTRACE", "full");
     let mut scan = Scanner::default();
@@ -128,6 +138,7 @@ fn input() -> Network{
     let n_edges : usize = scan.next::<usize>();
     let mut edges : Vec::<Edge> = Vec::<Edge>::new();
     let mut vertices : Vec<Vertex> = vec![Vertex{incoming_edges : Vec::<usize>::new(), outgoing_edges : Vec::<usize>::new()}; n_vertices];
+    let mut edge_to_id = std::collections::HashMap::<(usize, usize), EdgeId>::new();
     for edge_id in 0..n_edges{
         let v_from = scan.next::<usize>();
         assert!(v_from < n_vertices, "vertex indices should be in [0, n_vertices)");
@@ -148,6 +159,7 @@ fn input() -> Network{
         );
         vertices[v_from].outgoing_edges.push(v_to);
         vertices[v_to].incoming_edges.push(v_from);
+        edge_to_id.insert((v_from, v_to), edge_id);
     }
 
     let n_packets : usize = scan.next::<usize>();
@@ -155,13 +167,13 @@ fn input() -> Network{
     for packet_id in 0..n_packets{
         let release_time = scan.next::<usize>();
         let path_length = scan.next::<usize>();
-        let path : Vec<usize> = (0..path_length).map(|_| scan.next::<usize>()).collect();
-        assert!(path.len() >= 2, "paths should have length at least 2");
+        let vertex_path : Vec<usize> = (0..path_length).map(|_| scan.next::<usize>()).collect();
+        assert!(vertex_path.len() >= 2, "paths should have length at least 2");
         packets.push(
             Packet{
                 id : packet_id,
                 release_time : release_time,
-                path : path,
+                path : vertex_path_to_edge_path(vertex_path, &edge_to_id),
                 entrance_time : None,
                 path_position : None,
             }
