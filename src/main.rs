@@ -100,7 +100,7 @@ impl Network{
                             None => println!("Error: packet.entrance_time is None"),
                             Some(entrance_time) =>{
                                 println!("self.time: {}", self.time);
-                                println!("{} entrance_time: {}", packet.id, packet.entrance_time.unwrap());
+                                println!("Packet {} entrance_time: {}", packet.id, packet.entrance_time.unwrap());
                                 println!("entrance_time + edge length: {}", entrance_time +  self.edges[edge_id].length);
                                 if self.time == entrance_time +  self.edges[edge_id].length{
                                     if path_position == packet.path.len() - 1{
@@ -259,4 +259,13 @@ fn test_l(){
     assert_eq!(network.arrival_times[0], 3);
     assert_eq!(network.arrival_times[1], 3);
     assert_eq!(network.time, 3);
+}
+
+#[test]
+fn test_y(){
+    let mut network = input("src/instances/instance_y.txt");
+    network.run_simulation();
+    assert_eq!(network.arrival_times[0], 7);
+    assert_eq!(network.arrival_times[1], 8);
+    assert_eq!(network.time, 8);
 }
