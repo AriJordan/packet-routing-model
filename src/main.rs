@@ -99,6 +99,9 @@ impl Network{
                         match packet.entrance_time{
                             None => println!("Error: packet.entrance_time is None"),
                             Some(entrance_time) =>{
+                                println!("self.time: {}", self.time);
+                                println!("{} entrance_time: {}", packet.id, packet.entrance_time.unwrap());
+                                println!("entrance_time + edge length: {}", entrance_time +  self.edges[edge_id].length);
                                 if self.time == entrance_time +  self.edges[edge_id].length{
                                     if path_position == packet.path.len() - 1{
                                         // packet at end of path
@@ -111,6 +114,8 @@ impl Network{
                                         let popped_packet_id = self.queues[edge_id].pop_front().expect("pop_front() on empty queue called");                                      
                                         self.queues[packet.path[path_position + 1]].push_back(popped_packet_id); // TODO: correct order
                                         packet.path_position = Some(path_position + 1); // TODO : check whether path_position is changed 
+                                        packet.entrance_time = Some(self.time);
+                                        println!("packet {} now has path position {}", packet.id, packet.path_position.unwrap());
                                     }
                                 }                           
                             }
@@ -169,7 +174,6 @@ fn input(filename : &str) -> Network{
     }
 
     let n_packets : usize = scan.next::<usize>();
-    println!("n_packets: {}", n_packets);
     let mut packets = Vec::<Packet>::new();
     for packet_id in 0..n_packets{
         let release_time = scan.next::<Time>();
@@ -245,4 +249,14 @@ fn test_i(){
     assert_eq!(network.arrival_times[0], 1);
     assert_eq!(network.queues.len(), 1);
     assert_eq!(network.time, 1);
+}
+
+#[test]
+fn test_l(){
+    let mut network = input("src/instances/instance_l.txt");
+    network.run_simulation();
+    assert_eq!(network.arrival_times.len(), 2);
+    assert_eq!(network.arrival_times[0], 3);
+    assert_eq!(network.arrival_times[1], 3);
+    assert_eq!(network.time, 3);
 }
