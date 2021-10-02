@@ -12,7 +12,8 @@ impl Fraction {
     /// Create a new (non-negative) fraction with the given numerator and denominator
     /// Panic if fraction illegal
     pub fn new(numerator: i64, denominator: i64) -> Self {
-        if denominator <= 0 || numerator < 0 { panic!("Error: Fraction illegal: denominator <= 0 || numerator < 0") }
+        assert!(numerator >= 0, "Error: Fraction numerator must be non-negative");
+        assert!(denominator > 0, "Error: Fraction denominator must be positiove");
         Self { numerator, denominator }
     }
 
@@ -46,10 +47,13 @@ impl cmp::PartialEq for Fraction {
     }
 }
 
+// inherits PartialEq
 impl cmp::Eq for Fraction {}
 
 impl cmp::PartialOrd for Fraction {
     fn partial_cmp(&self, other: &Fraction) -> Option<cmp::Ordering> {
+        assert!(self.numerator < i32::MAX as i64 && self.denominator < i32::MAX as i64);
+        assert!(other.numerator < i32::MAX as i64 && other.denominator < i32::MAX as i64);
         if self.numerator * other.denominator == other.numerator * self.denominator{
             return Some(Ordering::Equal);
         }
@@ -62,7 +66,7 @@ impl cmp::PartialOrd for Fraction {
     }
 }
 
-impl Ord for Fraction {
+impl cmp::Ord for Fraction {
     fn cmp(&self, other: &Fraction) -> Ordering {
         let ord = self.partial_cmp(other).unwrap();
         match ord {
