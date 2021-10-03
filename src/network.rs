@@ -1,4 +1,7 @@
-use std::collections::VecDeque;
+use std::collections::{BinaryHeap, VecDeque};
+
+use crate::heap_element::HeapElement;
+use crate::fraction::Fraction;
 
 pub type Time = usize;
 pub type VertexId = usize;
@@ -13,20 +16,20 @@ pub struct Vertex{
 
 #[derive(Clone)]
 pub struct Edge{
-    id : EdgeId,
-    v_from : VertexId,
-    v_to : VertexId,
-    length : usize,
-    capacity : f64,
+    pub id : EdgeId,
+    pub v_from : VertexId,
+    pub v_to : VertexId,
+    pub length : usize,
+    pub capacity : f64,
 }
 
 #[derive(Clone)]
 pub struct Packet{
-    id : PacketId,
-    release_time : Time,
-    path : Vec<EdgeId>, // edges on path of packet
-    entrance_time : Option<Time>,
-    path_position : Option<usize>, // index in path : Vec<usize>
+    pub id : PacketId,
+    pub release_time : Time,
+    pub path : Vec<EdgeId>, // edges on path of packet
+    pub entrance_time : Option<Time>,
+    pub path_position : Option<usize>, // index in path : Vec<usize>
 }
 
 // TODO: separate Network into structs Network + State
@@ -46,7 +49,8 @@ impl Network{
     pub fn run_simulation(&mut self){
         while self.packets_arrived < self.packets.len(){
             self.determine_leaving();
-            self.node_transition();
+            self.node_transitions();
+            self.packet_arrivals();
             self.timestep();
         }
     }
@@ -85,80 +89,96 @@ impl Network{
     }
 
     // Determine transition of packets through nodes
-    fn node_transition(&mut self){
-        for (vertex_id, vertex) in self.vertices.iter().enumerate(){
-            for outgoing_edge_id in vertex.outgoing_edges{
+    fn node_transitions(&mut self){
+        for vertex in &self.vertices{
+            for outgoing_edge_id in &vertex.outgoing_edges{
                 // initialize priorities and queues of incoming arcs
-                let incoming_queues = Vec::<VecDeque<PacketId>>::new();
-                for incoming_edge_id in vertex.incoming_edges{
+                let mut incoming_queues = Vec::<(EdgeId, VecDeque<PacketId>)>::new();
+                for incoming_edge_id in &vertex.incoming_edges{
                     let mut incoming_queue = VecDeque::<PacketId>::new();
                     let mut remaining_leaving_queue = VecDeque::<PacketId>::new();
                     // front-to-back iteration
-                    for packet_id in self.leaving_queues[incoming_edge_id]{
-                        let packet = &self.packets[packet_id];
-                        if packet.path.len() > packet.path_position.unwrap() + 1 && packet.path[packet.path_position + 1] == outgoing_edge_id{
-                            incoming_queue.push_front(packet_id);
+                    for packet_id in &self.leaving_queues[*incoming_edge_id]{
+                        let packet = &self.packets[*packet_id];
+                        let next_position = packet.path_position.unwrap() + 1;
+                        if packet.path.len() > next_position && packet.path[next_position] == *outgoing_edge_id{
+                            incoming_queue.push_front(*packet_id);
                         }
                         else{
-                            remaining_leaving_queue.push_front(packet_id);
+                            remaining_leaving_queue.push_front(*packet_id);
                         }
                     }
-                    self.leaving_queues[incoming_edge_id] = remaining_leaving_queue;
-                    incoming_queues.push(incoming_queue);
+                    self.leaving_queues[*incoming_edge_id] = remaining_leaving_queue;
+                    incoming_queues.push((*incoming_edge_id, incoming_queue));
+                }
+                // Add additional queue for packets entering network
+                let mut entering_queue = VecDeque::<PacketId>::new();
+                for (packet_id, packet) in self.packets.iter().enumerate(){
+                    if packet.release_time == self.time && packet.path[0] == *outgoing_edge_id{
+                        entering_queue.push_front(packet_id);
+                        assert_eq!(self.packets[packet_id].path_position, None);
+                    }
+                }
+                incoming_queues.push((EdgeId::MAX, entering_queue));
+
+
+                // Build priority_queue for zipper method        
+                let mut priority_queue = BinaryHeap::<HeapElement>::new();
+                let mut original_queue_lengths = Vec::<usize>::new();
+                for (queue_id, (incoming_edge, incoming_queue)) in incoming_queues.iter().enumerate(){
+                    original_queue_lengths.push(incoming_queue.len());
+                    if incoming_queue.len() > 0{
+                        priority_queue.push(
+                            HeapElement {
+                                priority : Fraction::new(1, incoming_queue.len() as i64),
+                                edge_id : *incoming_edge,
+                                queue_id : queue_id,
+                            }
+                        );
+                    }
+                }
+                while !priority_queue.is_empty(){
+                    let top = priority_queue.peek().unwrap().clone();
+                    assert!(top.priority <= Fraction::new(1, 1), "Error: priorities should be at most 1");
+                    let incoming_queue = &mut incoming_queues[top.queue_id].1;
+                    let packet_id = *incoming_queue.back().unwrap();
+                    self.edge_queues[*outgoing_edge_id].push_front(packet_id);
+                    self.packets[packet_id].entrance_time = Some(self.time);
+                    incoming_queue.pop_back();
+
+                    if incoming_queue.len() > 0{
+                        let new_priority = Fraction::new(
+                            (original_queue_lengths[top.queue_id] - incoming_queue.len() + 1) as i64,
+                            original_queue_lengths[top.queue_id] as i64
+                        );
+                        priority_queue.push(
+                            HeapElement{
+                                priority : new_priority,
+                                edge_id : top.edge_id,
+                                queue_id : top.queue_id,
+                            }
+                        );
+                        assert_ne!(new_priority, priority_queue.peek().unwrap().priority, "Error: new priority should be different")
+                    }
+                    priority_queue.pop();
                 }
             }
         }
     }
 
-    fn timestep(&mut self){
-        // TODO: split into two parts: movement and queueing
-        for (packet_id, packet) in self.packets.iter_mut().enumerate(){
-            if packet.release_time > self.time{
-                // Packet not ready yet
-                continue;
-            }
-            else{
-                match packet.path_position{
-                    None =>{                        
-                        if packet.release_time == self.time{
-                            // Enter first edge on path, TODO: order compared to other packets entering edge
-                            let path_position = 0;  
-                            packet.path_position = Some(path_position);
-                            let edge_id = packet.path[path_position];
-                            packet.entrance_time = Some(self.time);                            
-                            self.queues[edge_id].push_back(packet_id);                    
-                        }
-                    }
-                    Some(path_position) =>{
-                        let edge_id = packet.path[path_position];
-                        match packet.entrance_time{
-                            None => println!("Error: packet.entrance_time is None"),
-                            Some(entrance_time) =>{
-                                println!("self.time: {}", self.time);
-                                println!("Packet {} entrance_time: {}", packet.id, packet.entrance_time.unwrap());
-                                println!("entrance_time + edge length: {}", entrance_time +  self.edges[edge_id].length);
-                                if self.time == entrance_time +  self.edges[edge_id].length{
-                                    if path_position == packet.path.len() - 1{
-                                        // packet at end of path
-                                        packet.path_position = None;
-                                        self.packets_arrived += 1;
-                                        self.arrival_times[packet_id] = self.time;
-                                    }
-                                    else{
-                                        // packet changes into next edge                                                                      
-                                        let popped_packet_id = self.queues[edge_id].pop_front().expect("pop_front() on empty queue called");                                      
-                                        self.queues[packet.path[path_position + 1]].push_back(popped_packet_id); // TODO: correct order
-                                        packet.path_position = Some(path_position + 1); // TODO : check whether path_position is changed 
-                                        packet.entrance_time = Some(self.time);
-                                        println!("packet {} now has path position {}", packet.id, packet.path_position.unwrap());
-                                    }
-                                }                           
-                            }
-                        }  
-                    }
-                }
+    // Determine packets arrived at the last node of their path
+    fn packet_arrivals(&mut self){
+        for leaving_queue in &self.leaving_queues{
+            for packet_id in leaving_queue{
+                assert_eq!(self.packets[*packet_id].path_position.unwrap(), self.packets[*packet_id].path.len() - 1, "Error: packet should be at path end");
+                assert_eq!(self.arrival_times[*packet_id], std::usize::MAX, "Error: packet should only arrive once");
+                self.arrival_times[*packet_id] = self.time;
             }
         }
+    }
+
+    // Advance the time if not all packets arrived yet
+    fn timestep(&mut self){
         if self.packets_arrived < self.packets.len(){
             self.time += 1;
         }

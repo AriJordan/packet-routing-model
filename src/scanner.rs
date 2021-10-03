@@ -1,7 +1,7 @@
 use std::io::stdin;
 #[derive(Default)]
 pub struct Scanner {
-    buffer: Vec<String>
+    pub buffer: Vec<String>
 }
 impl Scanner {
     pub fn next<T: std::str::FromStr>(&mut self) -> T {

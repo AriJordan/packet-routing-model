@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::{cmp, fmt};
 use std::ops::{Add, Sub, Mul, Div};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Fraction {
     numerator: i64,
     denominator: i64,
