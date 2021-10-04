@@ -48,10 +48,15 @@ impl Network{
 
     pub fn run_simulation(&mut self){
         while self.packets_arrived < self.packets.len(){
+            #[cfg(debug_assertions)]
+            println!("Time: {}", self.time);
             self.determine_leaving();
             self.node_transitions();
             self.packet_arrivals();
+            #[cfg(debug_assertions)]
+            println!("#Packets arrived: {}", self.packets_arrived);
             self.timestep();
+            assert!(self.time < 10);
         }
     }
 
@@ -60,8 +65,8 @@ impl Network{
         for edge_id in 0..self.edges.len(){
             // build buffer of candidate leaving packets for edge edge_id
             let mut buffer_queue = VecDeque::<PacketId>::new();
+            let edge_queue = &mut self.edge_queues[edge_id];
             loop{
-                let edge_queue = &mut self.edge_queues[edge_id];
                 if !edge_queue.is_empty(){
                     let front_packet = *edge_queue.front().unwrap();
                     let entrance_time = self.packets[front_packet].entrance_time.unwrap();
@@ -84,6 +89,12 @@ impl Network{
             while !buffer_queue.is_empty() && leaving_queue.len() + 1 <= self.edges[edge_id].capacity.floor() as usize { // TODO: changing capacity
                 leaving_queue.push_back(*buffer_queue.front().unwrap());
                 buffer_queue.pop_front();
+                edge_queue.pop_front();
+            }
+            // Put non-leaving packets back into edge_queue
+            while !buffer_queue.is_empty(){
+                edge_queue.push_front(*buffer_queue.back().unwrap());
+                buffer_queue.pop_back();
             }
         }
     }
@@ -92,6 +103,8 @@ impl Network{
     fn node_transitions(&mut self){
         for vertex in &self.vertices{
             for outgoing_edge_id in &vertex.outgoing_edges{
+                #[cfg(debug_assertions)]
+                println!("Considering outgoing_edge_id {}", outgoing_edge_id);
                 // initialize priorities and queues of incoming arcs
                 let mut incoming_queues = Vec::<(EdgeId, VecDeque<PacketId>)>::new();
                 for incoming_edge_id in &vertex.incoming_edges{
@@ -99,10 +112,15 @@ impl Network{
                     let mut remaining_leaving_queue = VecDeque::<PacketId>::new();
                     // front-to-back iteration
                     for packet_id in &self.leaving_queues[*incoming_edge_id]{
-                        let packet = &self.packets[*packet_id];
+                        let packet = &mut self.packets[*packet_id];
                         let next_position = packet.path_position.unwrap() + 1;
+                        #[cfg(debug_assertions)]
+                        println!("Packet {} path.len(): {}, path[next]: {}", packet_id, packet.path.len(), packet.path[next_position]);
                         if packet.path.len() > next_position && packet.path[next_position] == *outgoing_edge_id{
                             incoming_queue.push_front(*packet_id);
+                            packet.path_position = Some(next_position);
+                            #[cfg(debug_assertions)]
+                            println!("Packet {} has new path_position {}", packet_id, packet.path_position.unwrap());
                         }
                         else{
                             remaining_leaving_queue.push_front(*packet_id);
@@ -113,10 +131,15 @@ impl Network{
                 }
                 // Add additional queue for packets entering network
                 let mut entering_queue = VecDeque::<PacketId>::new();
-                for (packet_id, packet) in self.packets.iter().enumerate(){
+                for (packet_id, packet) in self.packets.iter_mut().enumerate(){
                     if packet.release_time == self.time && packet.path[0] == *outgoing_edge_id{
+                        #[cfg(debug_assertions)]
+                        println!("Packet {} enters network, entering_queue", packet_id);
                         entering_queue.push_front(packet_id);
-                        assert_eq!(self.packets[packet_id].path_position, None);
+                        assert_eq!(packet.path_position, None);
+                        #[cfg(debug_assertions)]
+                        println!("Packet {} has new path_position {}", packet_id, 0);
+                        packet.path_position = Some(0);
                     }
                 }
                 incoming_queues.push((EdgeId::MAX, entering_queue));
@@ -137,15 +160,21 @@ impl Network{
                         );
                     }
                 }
+                #[cfg(debug_assertions)]
+                println!("priority_queue length: {}", priority_queue.len());
                 while !priority_queue.is_empty(){
                     let top = priority_queue.peek().unwrap().clone();
                     assert!(top.priority <= Fraction::new(1, 1), "Error: priorities should be at most 1");
                     let incoming_queue = &mut incoming_queues[top.queue_id].1;
                     let packet_id = *incoming_queue.back().unwrap();
+                    #[cfg(debug_assertions)]
+                    println!("Packet {} enters edge_queue", packet_id);
                     self.edge_queues[*outgoing_edge_id].push_front(packet_id);
+                    
                     self.packets[packet_id].entrance_time = Some(self.time);
                     incoming_queue.pop_back();
 
+                    priority_queue.pop();
                     if incoming_queue.len() > 0{
                         let new_priority = Fraction::new(
                             (original_queue_lengths[top.queue_id] - incoming_queue.len() + 1) as i64,
@@ -158,9 +187,8 @@ impl Network{
                                 queue_id : top.queue_id,
                             }
                         );
-                        assert_ne!(new_priority, priority_queue.peek().unwrap().priority, "Error: new priority should be different")
                     }
-                    priority_queue.pop();
+                    
                 }
             }
         }
@@ -169,10 +197,15 @@ impl Network{
     // Determine packets arrived at the last node of their path
     fn packet_arrivals(&mut self){
         for leaving_queue in &self.leaving_queues{
+            #[cfg(debug_assertions)]
+            println!("{} packets leaving from leaving_queue", leaving_queue.len());
             for packet_id in leaving_queue{
                 assert_eq!(self.packets[*packet_id].path_position.unwrap(), self.packets[*packet_id].path.len() - 1, "Error: packet should be at path end");
                 assert_eq!(self.arrival_times[*packet_id], std::usize::MAX, "Error: packet should only arrive once");
+                #[cfg(debug_assertions)]
+                println!("Packet {} has arrived", *packet_id);
                 self.arrival_times[*packet_id] = self.time;
+                self.packets_arrived += 1;
             }
         }
     }

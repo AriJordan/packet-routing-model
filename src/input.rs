@@ -49,8 +49,8 @@ pub fn input(filename : &str) -> Network{
                 capacity : capacity,           
             }
         );
-        vertices[v_from].outgoing_edges.push(v_to);
-        vertices[v_to].incoming_edges.push(v_from);
+        vertices[v_from].outgoing_edges.push(edge_id);
+        vertices[v_to].incoming_edges.push(edge_id);
         edge_to_id.insert((v_from, v_to), edge_id);
     }
 
