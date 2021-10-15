@@ -4,8 +4,8 @@ use std::ops::{Add, Sub, Mul, Div};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Fraction {
-    numerator: i64,
-    denominator: i64,
+    pub numerator: i64,
+    pub denominator: i64,
 }
 
 impl Fraction {
@@ -24,6 +24,11 @@ impl Fraction {
             numerator: (self.numerator / gcd),
             denominator: (self.denominator / gcd),
         }
+    }
+
+    // Return the Fraction rounded down to the nearest integer
+    pub fn floor(&self) -> Self {
+        return Fraction{numerator : self.numerator / self.denominator, denominator : 1};
     }
 }
 
@@ -54,7 +59,7 @@ impl cmp::PartialOrd for Fraction {
     fn partial_cmp(&self, other: &Fraction) -> Option<cmp::Ordering> {
         assert!(self.numerator < i32::MAX as i64 && self.denominator < i32::MAX as i64);
         assert!(other.numerator < i32::MAX as i64 && other.denominator < i32::MAX as i64);
-        if self.numerator * other.denominator == other.numerator * self.denominator{
+        if self.eq(other){
             return Some(Ordering::Equal);
         }
         else{
@@ -68,34 +73,33 @@ impl cmp::PartialOrd for Fraction {
 
 impl cmp::Ord for Fraction {
     fn cmp(&self, other: &Fraction) -> Ordering {
-        let ord = self.partial_cmp(other).unwrap();
-        match ord {
-            Ordering::Greater => Ordering::Less,
-            Ordering::Less => Ordering::Greater,
-            Ordering::Equal => ord
-        }
+        self.partial_cmp(other).unwrap()
     }
 }
 
-impl<'a> Add for &'a Fraction {
+impl Add for Fraction {
     type Output = Fraction;
 
-    fn add(self, other: Self) -> Fraction {
+    fn add(self, other: Fraction) -> Fraction {
+        assert!(self.numerator < i32::MAX as i64 && self.denominator < i32::MAX as i64);
+        assert!(other.numerator < i32::MAX as i64 && other.denominator < i32::MAX as i64);
         Fraction {
             numerator: (self.numerator * other.denominator + other.numerator * self.denominator),
             denominator: (self.denominator * other.denominator),
-        }
+        }.reduce()
     }
 }
 
-impl<'a> Sub for &'a Fraction {
+impl Sub for Fraction {
     type Output = Fraction;
 
-    fn sub(self, other: Self) -> Fraction {
+    fn sub(self, other: Fraction) -> Fraction {
+        assert!(self.numerator < i32::MAX as i64 && self.denominator < i32::MAX as i64);
+        assert!(other.numerator < i32::MAX as i64 && other.denominator < i32::MAX as i64);
         Fraction {
             numerator: (self.numerator * other.denominator - other.numerator * self.denominator),
             denominator: (self.denominator * other.denominator),
-        }
+        }.reduce()
     }
 }
 
@@ -155,8 +159,8 @@ fn equality_test() {
 fn arithmetic_test() {
     let a = Fraction::new(1, 2);
     let b = Fraction::new(3, 4);
-    assert!(&a + &a == Fraction::new(1, 1));
-    assert!(&a - &a == Fraction::new(0, 5));
+    assert!(a + a == Fraction::new(1, 1));
+    assert!(a - a == Fraction::new(0, 5));
     assert!(&a * &b == Fraction::new(3, 8));
     assert!(&a / &b == Fraction::new(4, 6));
 }

@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 use crate::network::{Network, Vertex, Edge, Packet, VertexId, EdgeId, Time};
 use crate::scanner::Scanner;
+use crate::fraction::Fraction;
 
 fn vertex_path_to_edge_path(vertex_path : Vec<VertexId>, edge_to_id : &std::collections::HashMap::<(VertexId, VertexId), EdgeId>) -> Vec<EdgeId>{
     assert!(vertex_path.len() > 0);
@@ -38,15 +39,16 @@ pub fn input(filename : &str) -> Network{
         assert!(v_to < n_vertices, "vertex indices should be in [0, n_vertices)");
         let length = scan.next::<usize>();
         assert!(length > 0, "edge lengths should be positive");
-        let capacity = scan.next::<f64>();
-        assert!(capacity > 0.0, "edge capacities should be positive");
+        let capacity = scan.next::<i64>();
+        assert!(capacity > 0, "edge capacities should be positive");
         edges.push(
             Edge{
                 id : edge_id,
                 v_from : v_from,
                 v_to : v_to,
                 length : length,
-                capacity : capacity,           
+                average_capacity : Fraction{numerator : capacity, denominator : 1},
+                current_capacity : Fraction{numerator : capacity, denominator : 1},        
             }
         );
         vertices[v_from].outgoing_edges.push(edge_id);
@@ -79,7 +81,7 @@ pub fn input(filename : &str) -> Network{
         leaving_queues: vec![VecDeque::new(); n_edges],
         time : 0,
         packets_arrived : 0,
-        arrival_times : vec![std::usize::MAX; n_packets],
+        arrival_times : vec![None; n_packets],
     };
     network
 }

@@ -40,7 +40,7 @@ fn test_i(){
     assert_eq!(network.packets.len(), 1);
     assert_eq!(network.packets_arrived, 1);
     assert_eq!(network.arrival_times.len(), 1);
-    assert_eq!(network.arrival_times[0], 1);
+    assert_eq!(network.arrival_times[0].unwrap(), 1);
     assert_eq!(network.edge_queues.len(), network.edges.len());
     assert_eq!(network.time, 1);
 }
@@ -50,8 +50,8 @@ fn test_l(){
     let mut network = input::input("src/instances/instance_l.txt");
     network.run_simulation();
     assert_eq!(network.arrival_times.len(), 2);
-    assert_eq!(network.arrival_times[0], 3);
-    assert_eq!(network.arrival_times[1], 3);
+    assert_eq!(network.arrival_times[0].unwrap(), 3);
+    assert_eq!(network.arrival_times[1].unwrap(), 3);
     assert_eq!(network.time, 3);
 }
 
@@ -59,7 +59,7 @@ fn test_l(){
 fn test_y(){
     let mut network = input::input("src/instances/instance_y.txt");
     network.run_simulation();
-    assert_eq!(network.arrival_times[0], 7);
-    assert_eq!(network.arrival_times[1], 8);
+    assert_eq!(network.arrival_times[0].unwrap(), 7);
+    assert_eq!(network.arrival_times[1].unwrap(), 8);
     assert_eq!(network.time, 8);
 }
