@@ -1,14 +1,18 @@
+#![allow(dead_code)]
 mod scanner;
 mod network;
 mod input;
 mod fraction;
 mod heap_element;
 mod output;
+mod read_json;
 
 fn main() {
-    let mut network = input::input("src/instances/instance_l.txt");
-    network.run_simulation();
-    output::output_arrivals(&network);
+    let folder = "src/instances/instance_zimmer/";
+    read_json::read_json(&(folder.to_owned() + "network.json"), &(folder.to_owned() + "packets.json"));
+    //let mut network = input::input("src/instances/instance_l.txt");
+    //network.run_simulation();
+    //output::output_arrivals(&network);
 }
 
 #[test]

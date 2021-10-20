@@ -58,20 +58,20 @@ def write_discrete_jsons(mf : MultiFlow, alpha : float, beta : float):
         data['edges'].append({
             'v_from' : v_from,
             'v_to' : v_to,
-            'transit_time' : transit_time,
+            'transit_time' : transit_time / alpha,
             'capacity' : capacity,
         })
     with open(folder_path + 'network.json', 'w') as network_out_file:
         json.dump(data, network_out_file, indent=4)
         
     data = {}
-    data['packtets'] = []
+    data['packets'] = []
     for path in mf.pathCommodityDict:
         (start_time, end_time, rate) = mf.pathCommodityDict[path]
         packets_generated = 0
         for time in range(ceil(start_time / alpha), floor(end_time / alpha) + 1, alpha):
             for packet in range(0, floor(time * beta / alpha * rate) - packets_generated):
-                data['packtets'].append({
+                data['packets'].append({
                     'release_time' : time,
                     'path' : path,
                 })
