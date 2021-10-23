@@ -61,7 +61,6 @@ impl Network{
             #[cfg(debug_assertions)]
             println!("#Packets arrived: {}", self.packets_arrived);
             self.timestep();
-            assert!(self.time < 10);
         }
     }
 

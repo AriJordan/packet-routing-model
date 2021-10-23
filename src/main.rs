@@ -6,13 +6,13 @@ mod fraction;
 mod heap_element;
 mod output;
 mod read_json;
+mod write_json;
 
 fn main() {
     let folder = "src/instances/instance_zimmer/";
-    read_json::read_json(&(folder.to_owned() + "network.json"), &(folder.to_owned() + "packets.json"));
-    //let mut network = input::input("src/instances/instance_l.txt");
-    //network.run_simulation();
-    //output::output_arrivals(&network);
+    let (mut network, vertex_id_to_name) = read_json::read_json(&(folder.to_owned() + "network.json"), &(folder.to_owned() + "packets.json"));
+    network.run_simulation();
+    write_json::write_json(&network, vertex_id_to_name, &(folder.to_owned() + "results.json"));
 }
 
 #[test]
@@ -66,4 +66,15 @@ fn test_y(){
     assert_eq!(network.arrival_times[0].unwrap(), 7);
     assert_eq!(network.arrival_times[1].unwrap(), 8);
     assert_eq!(network.time, 8);
+}
+
+#[test]
+fn test_zimmer(){
+    let folder = "src/instances/instance_zimmer/";
+    let (mut network, vertex_id_to_name) = read_json::read_json(&(folder.to_owned() + "network.json"), &(folder.to_owned() + "packets.json"));
+    network.run_simulation();
+    for arrival_time in network.arrival_times.clone(){
+        assert_ne!(arrival_time, None);
+    }
+    write_json::write_json(&network, vertex_id_to_name, &(folder.to_owned() + "results.json"));
 }

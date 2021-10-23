@@ -5,6 +5,7 @@ import sys
 import os
 import timeit
 import json
+import subprocess
 
 folder_path : str = 'src/instances/instance_zimmer/'
 network_in_file : str = folder_path + 'simple_merge.cg'
@@ -83,6 +84,14 @@ def run_packet_routing(mf : MultiFlow):
     ALPHA = 1
     BETA = 1
     write_discrete_jsons(mf, ALPHA, BETA)
+    subprocess.run("target/debug/routing.exe")
+    
+def run_multi_flow(mf : MultiFlow):
+    mf.compute()
+    mf.generate_output(folder_path, "multi_flow")
+    mf.commodityOutflow
+    
 
 mf : MultiFlow = read_files()
 run_packet_routing(mf)
+run_multi_flow(mf)
