@@ -7,6 +7,7 @@ pub type Time = usize;
 pub type VertexId = usize;
 pub type EdgeId = usize;
 pub type PacketId = usize;
+pub type CommodityId = usize;
 
 #[derive(Clone)]
 pub struct Vertex{
@@ -27,6 +28,7 @@ pub struct Edge{
 #[derive(Clone)]
 pub struct Packet{
     pub id : PacketId,
+    pub commodity_id : CommodityId, 
     pub release_time : Time,
     pub path : Vec<EdgeId>, // edges on path of packet
     pub entrance_time : Option<Time>,

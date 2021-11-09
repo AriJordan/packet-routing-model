@@ -1,0 +1,31 @@
+{
+    "edges": [
+        {
+            "v_from": "s",
+            "v_to": "1",
+            "transit_time": 2,
+            "capacity": {
+                "numerator": 1,
+                "denominator": 1
+            }
+        },
+        {
+            "v_from": "0",
+            "v_to": "1",
+            "transit_time": 4,
+            "capacity": {
+                "numerator": 1,
+                "denominator": 1
+            }
+        },
+        {
+            "v_from": "1",
+            "v_to": "t",
+            "transit_time": 2,
+            "capacity": {
+                "numerator": 1,
+                "denominator": 1
+            }
+        }
+    ]
+}

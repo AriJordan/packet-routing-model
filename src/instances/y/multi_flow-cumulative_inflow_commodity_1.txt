@@ -1,0 +1,3 @@
+arc cumulative_inflow_function
+0,1 (0, 0),(1, 0),(10, 9),(inf, 9)
+1,t (0, 0),(3, 0),(12, 9),(inf, 9)

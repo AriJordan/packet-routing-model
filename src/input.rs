@@ -66,6 +66,7 @@ pub fn input(filename : &str) -> Network{
         packets.push(
             Packet{
                 id : packet_id,
+                commodity_id : commodity_id,
                 release_time : release_time,
                 path : vertex_path_to_edge_path(vertex_path, &edge_to_id),
                 entrance_time : None,

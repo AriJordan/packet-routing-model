@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 mod scanner;
 mod network;
-mod input;
 mod fraction;
 mod heap_element;
 mod output;
@@ -9,10 +8,10 @@ mod read_json;
 mod write_json;
 
 fn main() {
-    let folder = "src/instances/instance_zimmer/";
-    let (mut network, vertex_id_to_name) = read_json::read_json(&(folder.to_owned() + "network.json"), &(folder.to_owned() + "packets.json"));
+    let instance_directory = read_json::get_instance_directory();
+    let (mut network, vertex_id_to_name) = read_json::read_jsons(&instance_directory);
     network.run_simulation();
-    write_json::write_json(&network, vertex_id_to_name, &(folder.to_owned() + "results.json"));
+    write_json::write_json(&network, vertex_id_to_name, &(instance_directory.to_owned() + "results.json"));
 }
 
 #[test]
@@ -21,7 +20,7 @@ fn test_testing(){
     assert_eq!(2 + 2, 4);
     assert_ne!(2 + 2, 5);
 }
-
+/*
 #[test]
 fn test_empty(){
     let mut network = input::input("src/instances/instance_empty.txt");
@@ -67,14 +66,15 @@ fn test_y(){
     assert_eq!(network.arrival_times[1].unwrap(), 8);
     assert_eq!(network.time, 8);
 }
+*/
 
 #[test]
 fn test_zimmer(){
-    let folder = "src/instances/instance_zimmer/";
-    let (mut network, vertex_id_to_name) = read_json::read_json(&(folder.to_owned() + "network.json"), &(folder.to_owned() + "packets.json"));
+    let instance_directory = "src/instances/zimmer/";
+    let (mut network, vertex_id_to_name) = read_json::read_jsons(instance_directory);
     network.run_simulation();
     for arrival_time in network.arrival_times.clone(){
         assert_ne!(arrival_time, None);
     }
-    write_json::write_json(&network, vertex_id_to_name, &(folder.to_owned() + "results.json"));
+    write_json::write_json(&network, vertex_id_to_name, &(instance_directory.to_owned() + "results.json"));
 }

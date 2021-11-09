@@ -1,0 +1,16 @@
+{
+    "edges": [
+        {
+            "v_from": "s",
+            "v_to": "0",
+            "transit_time": 1.0,
+            "capacity": 2.0
+        },
+        {
+            "v_from": "0",
+            "v_to": "t",
+            "transit_time": 1.0,
+            "capacity": 1.0
+        }
+    ]
+}

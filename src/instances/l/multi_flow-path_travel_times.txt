@@ -1,0 +1,2 @@
+path path_travel_time
+s,0,t (0, 2),(10, 12),(20, 2),(inf, 2)

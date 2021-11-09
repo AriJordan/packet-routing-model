@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 use serde_json;
 
 use crate::fraction::Fraction;
-use crate::network::{Network, Vertex, Edge, Packet, VertexId, EdgeId};
+use crate::network::{Network, Vertex, Edge, Packet, VertexId, EdgeId, CommodityId};
 
 pub fn map_vertex_name_id(network_val : &serde_json::Value) -> (HashMap<&str, VertexId>, HashMap<VertexId, String>){
     let mut v_name_to_id : HashMap<&str, VertexId> = HashMap::<&str, VertexId>::new();
@@ -36,18 +36,21 @@ pub fn get_network(network_val : &serde_json::Value, vertex_name_to_id : &HashMa
         assert!(v_from < n_vertices, "vertex indices should be in [0, n_vertices)");
         let v_to = vertex_name_to_id[edge_val["v_to"].as_str().unwrap()];
         assert!(v_to < n_vertices, "vertex indices should be in [0, n_vertices)");
-        let length = edge_val["transit_time"].as_f64().unwrap() as usize; // TODO: handle fractional
+        let length = edge_val["transit_time"].as_i64().unwrap() as usize; // handle rounding errors
         assert!(length > 0, "edge lengths should be positive");
-        let capacity = edge_val["capacity"].as_f64().unwrap() as i64; // TODO: handle fractional
-        assert!(capacity > 0, "edge capacities should be positive");
+        let capacity = Fraction{
+            numerator : edge_val["capacity"]["numerator"].as_i64().unwrap(),
+            denominator : edge_val["capacity"]["denominator"].as_i64().unwrap(),
+        };
+        assert!(capacity.numerator > 0, "edge capacities should be positive");
         edges.push(
             Edge{
                 id : edge_id,
                 v_from : v_from,
                 v_to : v_to,
                 length : length,
-                average_capacity : Fraction{numerator : capacity, denominator : 1},
-                current_capacity : Fraction{numerator : capacity, denominator : 1},        
+                average_capacity : capacity,
+                current_capacity : capacity,
             }
         );
         vertices[v_from].outgoing_edges.push(edge_id);
@@ -60,6 +63,7 @@ pub fn get_network(network_val : &serde_json::Value, vertex_name_to_id : &HashMa
 pub fn get_packets(packets_val : &serde_json::Value, v_name_to_id : &HashMap<&str, VertexId>, edge_to_id : &HashMap::<(VertexId, VertexId), EdgeId>) -> Vec::<Packet>{
     let mut packets = Vec::<Packet>::new();
     for (packet_id, packet_val) in packets_val["packets"].as_array().unwrap().iter().enumerate() {
+        let commodity_id = packet_val["commodity_id"].as_u64().unwrap() as CommodityId;
         let release_time = packet_val["release_time"].as_u64().unwrap() as usize;
         let path_length = packet_val["path"].as_array().unwrap().len();
         let vertex_path : Vec<VertexId> = (0..path_length).map(|i| v_name_to_id[packet_val["path"].as_array().unwrap()[i].as_str().unwrap()] as VertexId).collect();
@@ -67,6 +71,7 @@ pub fn get_packets(packets_val : &serde_json::Value, v_name_to_id : &HashMap<&st
         packets.push(
             Packet{
                 id : packet_id,
+                commodity_id : commodity_id,
                 release_time : release_time,
                 path : vertex_path_to_edge_path(vertex_path, &edge_to_id),
                 entrance_time : None,
@@ -87,7 +92,18 @@ fn vertex_path_to_edge_path(vertex_path : Vec<VertexId>, edge_to_id : &std::coll
     edge_path
 }
 
-pub fn read_json(network_fname : &str, packets_fname : &str) -> (Network, HashMap<VertexId, String>){
+// Return: folder name of instance read from Python
+pub fn get_instance_directory() -> String{
+    let instance_name = std::fs::read_to_string("instance_name.txt").unwrap();
+    let instance_directory = "src/instances/".to_owned() + &instance_name + "/";
+    instance_directory
+}
+
+pub fn read_jsons(instance_directory : &str) -> (Network, HashMap<VertexId, String>){
+    // Define file names
+    
+    let network_fname = &(instance_directory.to_owned() + "network.json");
+    let packets_fname = &(instance_directory.to_owned() + "packets.json");
 
     // json files for network and packets
     let mut network_json = File::open(network_fname).unwrap();
@@ -128,8 +144,8 @@ pub fn read_json(network_fname : &str, packets_fname : &str) -> (Network, HashMa
 
 #[test]
 fn test_read_json(){
-    let folder = "src/instances/instance_zimmer/";
-    let (network, vertex_id_to_name) = read_json(&(folder.to_owned() + "network.json"), &(folder.to_owned() + "packets.json"));
+    let instance_directory = "src/instances/zimmer/";
+    let (network, vertex_id_to_name) = read_jsons(instance_directory);
     assert_eq!(network.vertices.len(), vertex_id_to_name.len()); // One name per vertex
     assert_eq!(network.vertices.len(), 6);
     assert_eq!(network.edges.len(), 5);

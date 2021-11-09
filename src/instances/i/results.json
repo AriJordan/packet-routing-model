@@ -1,0 +1,20 @@
+{
+  "arrival_times": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "commodity_ids": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "travel_times": [
+    1,
+    2,
+    2,
+    3
+  ]
+}

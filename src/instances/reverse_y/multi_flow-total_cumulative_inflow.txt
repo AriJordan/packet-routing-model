@@ -1,0 +1,4 @@
+arc total_cumulative_inflow_function
+s,0 (0, 0),(1, 0),(10, 27),(inf, 27)
+0,1 (0, 0),(2, 0),(11, 9),(inf, 9)
+0,t (0, 0),(2, 0),(11, 18),(inf, 18)
