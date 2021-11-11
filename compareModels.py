@@ -85,7 +85,7 @@ def write_discrete_jsons(mf : MultiFlow, alpha : float, beta : float):
         (start_time, end_time, rate) = mf.pathCommodityDict[path]
         packets_generated = 0
         for current_time in range(ceil(start_time / alpha), floor(end_time / alpha) + 1):
-            for packet in range(0, floor((current_time - start_time) * beta / alpha * rate) - packets_generated):
+            for packet in range(0, floor((current_time - (start_time / alpha)) * alpha / beta * rate) - packets_generated):
                 data['packets'].append({
                     'commodity_id' : commodity_id,
                     'release_time' : current_time,
