@@ -19,14 +19,14 @@ impl cmp::PartialOrd for MaxHeapElement{
             // higher priority means less, i.e. first
             // TODO: check, test
             match self.priority < other.priority {
-                true => Some(Ordering::Less),
-                false => Some(Ordering::Greater),
+                true => Some(Ordering::Greater),
+                false => Some(Ordering::Less),
             }
         }
         else{
-            match self.edge_id > other.edge_id{
-                true => Some(Ordering::Less),
-                false => Some(Ordering::Greater), 
+            match self.edge_id < other.edge_id{
+                true => Some(Ordering::Greater),
+                false => Some(Ordering::Less), 
             }
         }
     }
