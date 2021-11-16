@@ -97,7 +97,7 @@ def write_discrete_jsons(mf : MultiFlow, alpha : float, beta : float):
 
 def run_packet_routing(mf : MultiFlow, alpha, beta):
     write_discrete_jsons(mf, alpha, beta)
-    subprocess.run(rust_executable)
+    subprocess.run([rust_executable, instance_directory])
     
 def run_multi_flow(mf : MultiFlow):
     mf.compute()

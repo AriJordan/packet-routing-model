@@ -92,13 +92,6 @@ fn vertex_path_to_edge_path(vertex_path : Vec<VertexId>, edge_to_id : &std::coll
     edge_path
 }
 
-// Return: folder name of instance read from Python
-pub fn get_instance_directory() -> String{
-    let instance_name = std::fs::read_to_string("instance_name.txt").unwrap();
-    let instance_directory = "src/instances/".to_owned() + &instance_name + "/";
-    instance_directory
-}
-
 pub fn read_jsons(instance_directory : &str) -> (Network, HashMap<VertexId, String>){
     // Define file names
     
