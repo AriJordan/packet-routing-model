@@ -346,6 +346,28 @@ class MultiFlow:
                 elif theta < T_l:
                     continue
 
+    def get_break_points(self, path):
+        """Return the timepoints defining interval endpoints of piecewise linear flow along path"""
+        breakPoints = [0.0]
+        for i in reversed(range(len(path) - 1)):
+            v, w = path[i], path[i + 1]
+            e = (v, w)
+            for xPath in self.pathCommodityDict:
+                if self.edge_on_path(xPath, e):
+                    for interval in self.commodityInflow[xPath][e].keys():
+                        t_l, t_u = interval
+                        breakPoints = breakPoints + [t_l, t_u]
+                    for interval in self.commodityOutflow[xPath][e].keys():
+                        t_l, t_u = interval
+                        breakPoints = breakPoints + [t_l, t_u]
+            breakPoints = sorted(list(set(breakPoints)))
+            breakPoints = [bp for bp in breakPoints if 0.0 <= bp < float('inf')]
+
+            breakPoints = breakPoints + [self.inverse_travel_time(e, bp) for bp in breakPoints]
+            breakPoints = sorted(list(set([bp for bp in breakPoints if 0.0 <= bp < float('inf')])))
+        breakPoints = Utilities.get_unique_tol(L=breakPoints, tol=1e-5)
+        return breakPoints
+
     def generate_output(self, filePath, baseName):
         """Outputs the following:
         - Path travel times
@@ -403,25 +425,7 @@ class MultiFlow:
         with open(pathTTFile, "w") as file:
             file.write("path path_travel_time\n")
             for path in self.pathCommodityDict:
-                breakPoints = [0.0]
-                for i in reversed(range(len(path) - 1)):
-                    v, w = path[i], path[i + 1]
-                    e = (v, w)
-                    for xPath in self.pathCommodityDict:
-                        if self.edge_on_path(xPath, e):
-                            for interval in self.commodityInflow[xPath][e].keys():
-                                t_l, t_u = interval
-                                breakPoints = breakPoints + [t_l, t_u]
-                            for interval in self.commodityOutflow[xPath][e].keys():
-                                t_l, t_u = interval
-                                breakPoints = breakPoints + [t_l, t_u]
-                    breakPoints = sorted(list(set(breakPoints)))
-                    breakPoints = [bp for bp in breakPoints if 0.0 <= bp < float('inf')]
-
-                    breakPoints = breakPoints + [self.inverse_travel_time(e, bp) for bp in breakPoints]
-                    breakPoints = sorted(list(set([bp for bp in breakPoints if 0.0 <= bp < float('inf')])))
-                breakPoints = Utilities.get_unique_tol(L=breakPoints, tol=1e-5)
-
+                breakPoints = self.get_break_points(path)
                 s = ",".join([str(node) for node in path]) + " "
                 tupleList = [(x, self.path_travel_time(path, x)) for x in breakPoints]
                 prettyList = Utilities.cleanup_output_list(tupleList)

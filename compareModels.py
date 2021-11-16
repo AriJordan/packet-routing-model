@@ -160,9 +160,6 @@ network_in_file : str = instance_directory + 'network.cg'
 inflow_in_file : str = instance_directory + 'inflow.txt'
 rust_executable = 'target/debug/routing.exe'
 
-with open('instance_name.txt', 'w') as file:
-    file.write(INSTANCE_NAME)
-
 mf : MultiFlow = read_files()
 
 ALPHAS = [1, 0.5]
