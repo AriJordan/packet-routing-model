@@ -7,7 +7,7 @@ use serde_json::to_string_pretty;
 use crate::network::{self, CommodityId, VertexId, Time};
 
 pub fn get_output_val(network : &network::Network, vertex_id_to_name : HashMap<VertexId, String>) -> serde_json::Value{
-    assert!(vertex_id_to_name.len() > 0);
+    assert!(vertex_id_to_name.len() == network.vertices.len());
     json!({
         "commodity_ids": (0..network.packets.len()).map(|i| network.packets[i].commodity_id).collect::<Vec<CommodityId>>(),
         "arrival_times": network.arrival_times,

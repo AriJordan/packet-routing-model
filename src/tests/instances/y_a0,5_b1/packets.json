@@ -2,25 +2,7 @@
     "packets": [
         {
             "commodity_id": 0,
-            "release_time": 3,
-            "path": [
-                "s",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
             "release_time": 4,
-            "path": [
-                "s",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
-            "release_time": 5,
             "path": [
                 "s",
                 "1",
@@ -38,25 +20,7 @@
         },
         {
             "commodity_id": 0,
-            "release_time": 7,
-            "path": [
-                "s",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
             "release_time": 8,
-            "path": [
-                "s",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
-            "release_time": 9,
             "path": [
                 "s",
                 "1",
@@ -74,25 +38,7 @@
         },
         {
             "commodity_id": 0,
-            "release_time": 11,
-            "path": [
-                "s",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
             "release_time": 12,
-            "path": [
-                "s",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
-            "release_time": 13,
             "path": [
                 "s",
                 "1",
@@ -110,15 +56,6 @@
         },
         {
             "commodity_id": 0,
-            "release_time": 15,
-            "path": [
-                "s",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
             "release_time": 16,
             "path": [
                 "s",
@@ -128,25 +65,7 @@
         },
         {
             "commodity_id": 0,
-            "release_time": 17,
-            "path": [
-                "s",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
             "release_time": 18,
-            "path": [
-                "s",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
-            "release_time": 19,
             "path": [
                 "s",
                 "1",
@@ -164,25 +83,7 @@
         },
         {
             "commodity_id": 1,
-            "release_time": 3,
-            "path": [
-                "0",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 1,
             "release_time": 4,
-            "path": [
-                "0",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 1,
-            "release_time": 5,
             "path": [
                 "0",
                 "1",
@@ -200,25 +101,7 @@
         },
         {
             "commodity_id": 1,
-            "release_time": 7,
-            "path": [
-                "0",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 1,
             "release_time": 8,
-            "path": [
-                "0",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 1,
-            "release_time": 9,
             "path": [
                 "0",
                 "1",
@@ -236,25 +119,7 @@
         },
         {
             "commodity_id": 1,
-            "release_time": 11,
-            "path": [
-                "0",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 1,
             "release_time": 12,
-            "path": [
-                "0",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 1,
-            "release_time": 13,
             "path": [
                 "0",
                 "1",
@@ -272,15 +137,6 @@
         },
         {
             "commodity_id": 1,
-            "release_time": 15,
-            "path": [
-                "0",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 1,
             "release_time": 16,
             "path": [
                 "0",
@@ -290,25 +146,7 @@
         },
         {
             "commodity_id": 1,
-            "release_time": 17,
-            "path": [
-                "0",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 1,
             "release_time": 18,
-            "path": [
-                "0",
-                "1",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 1,
-            "release_time": 19,
             "path": [
                 "0",
                 "1",

@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::{cmp, fmt};
-use std::ops::{Add, Sub, Mul, Div};
+use std::ops::{Add, Sub};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Fraction {
@@ -103,28 +103,6 @@ impl Sub for Fraction {
     }
 }
 
-impl<'a> Mul for &'a Fraction {
-    type Output = Fraction;
-
-    fn mul(self, other: Self) -> Fraction {
-        Fraction {
-            numerator: (self.numerator * other.numerator),
-            denominator: (self.denominator * other.denominator),
-        }
-    }
-}
-
-impl<'a> Div for &'a Fraction {
-    type Output = Fraction;
-
-    fn div(self, other: Self) -> Fraction {
-        Fraction {
-            numerator: (self.numerator * other.denominator),
-            denominator: (self.denominator * other.numerator),
-        }
-    }
-}
-
 // Calculate the greatest common denominator for two numbers
 pub fn gcd(a: i64, b: i64) -> i64 {
     if b == 0{
@@ -159,8 +137,11 @@ fn equality_test() {
 fn arithmetic_test() {
     let a = Fraction::new(1, 2);
     let b = Fraction::new(3, 4);
-    assert!(a + a == Fraction::new(1, 1));
-    assert!(a - a == Fraction::new(0, 5));
-    assert!(&a * &b == Fraction::new(3, 8));
-    assert!(&a / &b == Fraction::new(4, 6));
+    let c = Fraction::new(1, 3);
+    assert_eq!(a + a, Fraction::new(1, 1));
+    assert_eq!(a - a, Fraction::new(0, 5));
+    assert_eq!(a + b, Fraction::new(5, 4));
+    assert_eq!(b - a, Fraction::new(1, 4));
+    assert_eq!(a + c, Fraction::new(5, 6));
+    assert_eq!(a - c, Fraction::new(1, 6));
 }

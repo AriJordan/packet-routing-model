@@ -104,6 +104,8 @@ pub fn read_jsons(instance_directory : &str) -> (Network, HashMap<VertexId, Stri
     
     let network_fname = &(instance_directory.to_owned() + "network.json");
     let packets_fname = &(instance_directory.to_owned() + "packets.json");
+    #[cfg(debug_assertions)]
+    println!("network file name: {}", network_fname);
 
     // json files for network and packets
     let mut network_json = File::open(network_fname).unwrap();
@@ -130,8 +132,8 @@ pub fn read_jsons(instance_directory : &str) -> (Network, HashMap<VertexId, Stri
     let (edges, vertices, edge_to_id) = get_network(&network_val, &vertex_name_to_id);
     let packets = get_packets(&packets_val, &vertex_name_to_id, &edge_to_id);
     let network = Network{
-        edge_queues : vec![VecDeque::new(); vertices.len()],
-        leaving_queues: vec![VecDeque::new(); vertices.len()],
+        edge_queues : vec![VecDeque::new(); edges.len()],
+        leaving_queues: vec![VecDeque::new(); edges.len()],
         vertices : vertices,
         edges : edges,
         arrival_times : vec![None; packets.len()],  

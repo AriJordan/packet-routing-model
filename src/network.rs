@@ -52,13 +52,15 @@ impl Network{
     pub fn run_simulation(&mut self){
         while self.packets_arrived < self.packets.len(){
             #[cfg(debug_assertions)]
-            println!("Time: {}", self.time);
+            println!("##### Time: {} #####", self.time);
+            #[cfg(debug_assertions)]
+            println!("### Determining leaving packets ###");
             self.determine_leaving();
             #[cfg(debug_assertions)]
-            println!("Starting node transitions");
+            println!("### Starting node transitions ###");
             self.node_transitions();
             #[cfg(debug_assertions)]
-            println!("Starting packet arrivals");
+            println!("### Starting packet arrivals ###");
             self.packet_arrivals();
             #[cfg(debug_assertions)]
             println!("#Packets arrived: {}", self.packets_arrived);
@@ -68,7 +70,10 @@ impl Network{
 
     // Determine the packets leaving the edges
     fn determine_leaving(&mut self){
+        
         for edge_id in 0..self.edges.len(){
+            #[cfg(debug_assertions)]
+            println!("- edge_id: {}", edge_id);
             // build buffer of candidate leaving packets for edge edge_id
             let mut buffer_queue = VecDeque::<PacketId>::new();
             let edge_queue = &mut self.edge_queues[edge_id];
@@ -82,6 +87,8 @@ impl Network{
                     break;
                 }
             }
+            #[cfg(debug_assertions)]
+            println!("buffer_queue length: {}", buffer_queue.len());
 
             let leaving_queue = &mut self.leaving_queues[edge_id];
             assert!(leaving_queue.is_empty());
@@ -97,6 +104,8 @@ impl Network{
                 buffer_queue.pop_front();
                 edge_queue.pop_front();
             }
+            #[cfg(debug_assertions)]
+            println!("leaving_queue length: {}", leaving_queue.len());
             let avg_cap = self.edges[edge_id].average_capacity.clone();
             let cur_cap = &mut self.edges[edge_id].current_capacity;   
             if buffer_queue.is_empty(){ // |B_e(t - 1)| <= v^_e(t - 1)
@@ -114,7 +123,7 @@ impl Network{
             // TODO: improve runtime here?
             for outgoing_edge_id in &vertex.outgoing_edges{
                 #[cfg(debug_assertions)]
-                println!("Considering outgoing_edge_id {}", outgoing_edge_id);
+                println!("- outgoing_edge_id {}", outgoing_edge_id);
                 // initialize priorities and queues of incoming arcs
                 let mut incoming_queues = Vec::<(EdgeId, VecDeque<PacketId>)>::new();
                 for incoming_edge_id in &vertex.incoming_edges{
