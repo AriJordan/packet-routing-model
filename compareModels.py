@@ -117,7 +117,7 @@ def compare_models(mf : MultiFlow, alpha : float, beta : float):
     flow_commodity_ids = []
     for (commodity_id, path) in enumerate(mf.pathCommodityDict):
         start_time, end_time, rate = mf.pathCommodityDict[path]
-        time_points = sorted(list(set([start_time, end_time, *packet_release_times])))
+        time_points = sorted(list(set([start_time, end_time, *mf.get_break_points(path)])))
         flow_travel_times.extend([mf.path_travel_time(path, t) for t in time_points])
         flow_release_times.extend(t for t in time_points)
         flow_commodity_ids.extend([commodity_id for _ in time_points])
