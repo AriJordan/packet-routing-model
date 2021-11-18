@@ -132,24 +132,27 @@ fn test_zimmer(){
     assert_eq!(network.arrival_times.len(), network.packets.len());
     assert_eq!(network.arrival_times[0].unwrap(), 5); // 2 + 1 + 1 + 1
     assert_eq!(network.edge_queues.len(), network.edges.len());
-    assert_eq!(network.time, network.arrival_times[0].unwrap() + (network.packets.len() / 2 - 1)); // 2 packets arrive per time unit 
+    // The first 3 packets arrive alone, afterwards 2 packets arrive per time unit
+    assert_eq!(network.time, network.arrival_times[0].unwrap() + (3 + ((network.packets.len() - 3) as f64 / 2.0).ceil() as usize) - 1);
     for arrival_time in network.arrival_times.clone(){
         assert_ne!(arrival_time, None);
     }
     let result_val = get_result_val(&network, vertex_id_to_name, instance_directory);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[0], 4);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[1], 4);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[2], 5);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[3], 5);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[6], 7);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[7], 8); // other commodity
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[8], 10);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9], 11);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 0], 7);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[0], 5);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[1], 6);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[2], 7);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[3], 9); // other commodity comes first
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[4], 10);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[5], 12); 
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[6], 13);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[7], 15);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 0], 8);
     assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 1], 8);
     assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 2], 9);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 3], 9);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 0], 10);
-    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 1], 11);
-
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 3], 10);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 4], 11);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 5], 11);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 6], 12);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 7], 13);
+    assert_eq!(result_val["arrival_times"].as_array().unwrap()[9 * 2 + 8], 14);
 }
