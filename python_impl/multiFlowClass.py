@@ -7,7 +7,7 @@
 
 import heapq
 from collections import OrderedDict
-from utilitiesClass import Utilities
+from .utilitiesClass import Utilities
 import os
 import timeit
 

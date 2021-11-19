@@ -3,10 +3,10 @@
         {
             "v_from": "s",
             "v_to": "t",
-            "transit_time": 2,
+            "transit_time": 1,
             "capacity": {
                 "numerator": 1,
-                "denominator": 2
+                "denominator": 1
             }
         }
     ]

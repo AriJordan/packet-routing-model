@@ -2,6 +2,22 @@
     "packets": [
         {
             "commodity_id": 0,
+            "release_time": 2,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 2,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
             "release_time": 3,
             "path": [
                 "s",
@@ -10,23 +26,7 @@
         },
         {
             "commodity_id": 0,
-            "release_time": 4,
-            "path": [
-                "s",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
-            "release_time": 5,
-            "path": [
-                "s",
-                "t"
-            ]
-        },
-        {
-            "commodity_id": 0,
-            "release_time": 6,
+            "release_time": 3,
             "path": [
                 "s",
                 "t"
