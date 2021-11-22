@@ -171,14 +171,19 @@ class Simulation():
             plt.show()
 
     def error_norm(self, errors):
-        return np.max(errors), "maximum error"
+        return np.max(np.abs(errors)), "maximum error"
 
     def calc_approx_error(self, results : Results):
         n_packets = len(results.packet_release_times)
-        errors = zeros(n_packets)
-        for packet_id, packet_release_time in enumerate(results.packet_release_times):
-            errors[packet_id] = (results.packet_travel_times[packet_id] - 
-                interp(x=packet_release_time, xp=results.flow_release_times, fp=results.flow_travel_times))
+        errors = []
+        for commodity_id in sorted(list(set(results.packet_commodity_ids))):
+            commodity_packet_ids = [i for i in range(n_packets) if results.packet_commodity_ids[i] == commodity_id]
+            commodity_flow_ids = [i for i in range(len(results.flow_commodity_ids)) if results.flow_commodity_ids[i] == commodity_id]
+            commodity_flow_release_times = [results.flow_release_times[i] for i in commodity_flow_ids]
+            commodity_flow_travel_times = [results.flow_travel_times[i] for i in commodity_flow_ids]
+            for packet_id in commodity_packet_ids:
+                errors.append(results.packet_travel_times[packet_id] - 
+                    interp(x=results.packet_release_times[packet_id], xp=commodity_flow_release_times, fp=commodity_flow_travel_times))
         return self.error_norm(errors)
 
     def plot_approx_errors_1D(self, approx_errors, alphas, show_plot : bool, save_plot : bool, description : str, error_description):
