@@ -1,18 +1,24 @@
-from numpy import array
+from numpy import array, interp, zeros
 from math import floor, ceil
-
-from numpy.core.function_base import linspace
-from .multiFlowClass import MultiFlow
 from datetime import datetime
+from .multiFlowClass import MultiFlow
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import sys
-import os
-import timeit
 import json
 import subprocess
 
+class Results():
+    def __init__(self, packet_release_times, packet_travel_times, packet_commodity_ids,
+            flow_release_times, flow_travel_times, flow_commodity_ids):
+        self.packet_release_times = packet_release_times
+        self.packet_travel_times = packet_travel_times
+        self.packet_commodity_ids = packet_commodity_ids
+        self.flow_release_times = flow_release_times
+        self.flow_travel_times = flow_travel_times
+        self.flow_commodity_ids = flow_commodity_ids
+        
 class Simulation():
     def __init__(self, INSTANCE_NAME):
         # Directory containing network and flow data
@@ -67,6 +73,7 @@ class Simulation():
             EPS = 1e-6
             FRAC_PRECISION = 100800
             # Heuristic way of converting float to fractional
+            print("capacity:", capacity, "alpha:", alpha, "beta:", beta)
             real_capacity = capacity * alpha / beta 
             numerator = round(FRAC_PRECISION * real_capacity)
             denominator = FRAC_PRECISION
@@ -106,7 +113,7 @@ class Simulation():
         try: 
             subprocess.run([self.rust_executable_directory + "routing.exe", self.instance_directory])
         except:
-            print("routing executable was not found under directory:", self.rust_executable_directory)
+            print(f"running routing executable under directory {self.rust_executable_directory} failed")
         
     def run_multi_flow(self):
         mf : MultiFlow = self.read_files()
@@ -114,7 +121,7 @@ class Simulation():
         mf.generate_output(self.instance_directory, "multi_flow")
         return mf
 
-    def compare_models(self, mf : MultiFlow, alpha : float, beta : float, plot_graph : bool):
+    def compare_models(self, mf : MultiFlow, alpha : float, beta : float):
         with open(self.instance_directory + "results.json") as results_file:
             packet_results = json.load(results_file)
             packet_commodity_ids = array(packet_results["commodity_ids"])
@@ -133,16 +140,24 @@ class Simulation():
             flow_release_times.extend(t for t in time_points)
             flow_commodity_ids.extend([commodity_id for _ in time_points])
 
+        results = Results(
+            packet_release_times, packet_travel_times, packet_commodity_ids,
+            flow_release_times, flow_travel_times, flow_commodity_ids)
+        return results
+
+    def plot_packets_vs_flow(self, results: Results, alpha, beta, show_plot : bool, save_plot : bool):
         #colmaps = plt.get_cmap("autumn", N=len(commodity_ids))
+        commodity_ids = list(set(results.packet_commodity_ids))
         packet_colors = plt.get_cmap("autumn")(np.linspace(0, 0.8, 2))
         flow_colors = plt.get_cmap("winter")(np.linspace(0, 1, 2))
         for commodity_id in commodity_ids:
-            packet_x = [packet_release_times[i] for i in range(len(packet_travel_times)) if packet_commodity_ids[i] == commodity_id]
-            packet_y = [packet_travel_times[i] for i in range(len(packet_travel_times)) if packet_commodity_ids[i] == commodity_id]
+            packet_x = [results.packet_release_times[i] for i in range(len(results.packet_travel_times)) if results.packet_commodity_ids[i] == commodity_id]
+            packet_y = [results.packet_travel_times[i] for i in range(len(results.packet_travel_times)) if results.packet_commodity_ids[i] == commodity_id]
             plt.plot(packet_x, packet_y, color=packet_colors[commodity_id], marker='s', linestyle="none")
-            flow_x = [flow_release_times[i] for i in range(len(flow_travel_times)) if flow_commodity_ids[i] == commodity_id]
-            flow_y = [flow_travel_times[i] for i in range(len(flow_travel_times)) if flow_commodity_ids[i] == commodity_id]
+            flow_x = [results.flow_release_times[i] for i in range(len(results.flow_travel_times)) if results.flow_commodity_ids[i] == commodity_id]
+            flow_y = [results.flow_travel_times[i] for i in range(len(results.flow_travel_times)) if results.flow_commodity_ids[i] == commodity_id]
             plt.plot(flow_x, flow_y, color=flow_colors[commodity_id])
+        plt.title("packets vs flow travel times")
         plt.xlabel("release time")
         plt.ylabel("travel time")
         packet_flow_labels = []
@@ -150,22 +165,48 @@ class Simulation():
             packet_flow_labels.append("packets " + str(commodity_id))
             packet_flow_labels.append("flow " + str(commodity_id))
         plt.legend(packet_flow_labels)
-        #plt.savefig(datetime.now().strftime("plots\\a" + str(alpha) + "_b" + str(beta) + "comparison_%d-%m-%Y_%H;%M;%S"))
-        if plot_graph:
+        if save_plot:
+            plt.savefig(datetime.now().strftime(f"plots\\a{alpha}_b{beta}_packets_vs_flow_%d-%m-%Y_%H;%M;%S"))
+        if show_plot:
             plt.show()
-        
 
-def multiple_runs(INSTANCE_NAME : str, alphas, betas):
+    def error_norm(self, errors):
+        return np.max(errors), "maximum error"
+
+    def calc_approx_error(self, results : Results):
+        n_packets = len(results.packet_release_times)
+        errors = zeros(n_packets)
+        for packet_id, packet_release_time in enumerate(results.packet_release_times):
+            errors[packet_id] = (results.packet_travel_times[packet_id] - 
+                interp(x=packet_release_time, xp=results.flow_release_times, fp=results.flow_travel_times))
+        return self.error_norm(errors)
+
+    def plot_approx_errors_1D(self, approx_errors, alphas, show_plot : bool, save_plot : bool, description : str, error_description):
+        plt.title(description)
+        plt.xlabel("alpha")
+        plt.ylabel(error_description)
+        plt.plot(alphas, approx_errors)
+        if save_plot:
+            plt.savefig(datetime.now().strftime(f"plots\\approx_errors_1D_%d-%m-%Y_%H;%M;%S"))
+        if show_plot:
+            plt.show()
+
+def multiple_runs(INSTANCE_NAME : str, alphas, betas, show_plot : bool, save_plot : bool, description : str):
     assert len(alphas) == len(betas), "List of alphas should have same length as list of betas"
     simulation = Simulation(INSTANCE_NAME)
     mf = simulation.run_multi_flow()
     n_runs = len(alphas)
+    approx_errors = zeros(n_runs)
     for run_id in range(n_runs):
         simulation.run_packet_routing(mf, alphas[run_id], betas[run_id])
-        simulation.compare_models(mf, alphas[run_id], betas[run_id], plot_graph=False)
+        results = simulation.compare_models(mf, alphas[run_id], betas[run_id])
+        approx_errors[run_id], error_description = simulation.calc_approx_error(results)
+    simulation.plot_approx_errors_1D(approx_errors, alphas, show_plot, save_plot, description, error_description)
+    print(approx_errors)
 
-def single_run(INSTANCE_NAME : str, alpha, beta):
+def single_run(INSTANCE_NAME : str, alpha, beta, show_plot : bool, save_plot : bool):
     simulation = Simulation(INSTANCE_NAME)
     mf = simulation.run_multi_flow()
     simulation.run_packet_routing(mf, alpha, beta)
-    simulation.compare_models(mf, alpha, beta, plot_graph=True)
+    results = simulation.compare_models(mf, alpha, beta)
+    simulation.plot_packets_vs_flow(results, alpha, beta, show_plot, save_plot)

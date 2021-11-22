@@ -22,7 +22,7 @@ fn main() {
         }
         // too many arguments passed
         _ => {
-            println!("Too many arguments");
+            println!("Too many arguments passed");
         }
     }
 }
