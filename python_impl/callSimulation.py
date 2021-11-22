@@ -25,6 +25,11 @@ class Simulation():
         self.instance_directory : str = "src/instances/" + INSTANCE_NAME + "/"
         # Directory containing simulation executable
         self.rust_executable_directory = "target/debug/"
+        if self.rust_executable_directory == "target/debug/":
+            print("Running in DEBUG mode")
+        else:
+            assert self.rust_executable_directory == "target/release/"
+            print("Running in RELEASE mode")
         
     def load_graph(self, path):
         """
@@ -73,7 +78,6 @@ class Simulation():
             EPS = 1e-6
             FRAC_PRECISION = 100800
             # Heuristic way of converting float to fractional
-            print("capacity:", capacity, "alpha:", alpha, "beta:", beta)
             real_capacity = capacity * alpha / beta 
             numerator = round(FRAC_PRECISION * real_capacity)
             denominator = FRAC_PRECISION
