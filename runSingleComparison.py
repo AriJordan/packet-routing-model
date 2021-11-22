@@ -1,5 +1,5 @@
 import os
-from .python_impl import callSimulation
+from python_impl import callSimulation
 from argparse import ArgumentParser
 if __name__ == "__main__":
     SHOW_PLOT = True
