@@ -1,13 +1,15 @@
-from numpy import array, interp, zeros
-from math import floor, ceil
-from datetime import datetime
-from .multiFlowClass import MultiFlow
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import sys
 import json
 import subprocess
+from numpy import array, interp, zeros
+from mpl_toolkits import mplot3d
+from math import floor, ceil
+from datetime import datetime
+from .multiFlowClass import MultiFlow
+
 
 class Results():
     def __init__(self, packet_release_times, packet_travel_times, packet_commodity_ids,
@@ -21,10 +23,11 @@ class Results():
         
 class Simulation():
     def __init__(self, INSTANCE_NAME):
+        self.instance_name = INSTANCE_NAME
         # Directory containing network and flow data
         self.instance_directory : str = "src/instances/" + INSTANCE_NAME + "/"
         # Directory containing simulation executable
-        self.rust_executable_directory = "target/debug/"
+        self.rust_executable_directory = "target/release/"
         if self.rust_executable_directory == "target/debug/":
             print("Running in DEBUG mode")
         else:
@@ -170,7 +173,7 @@ class Simulation():
             packet_flow_labels.append("flow " + str(commodity_id))
         plt.legend(packet_flow_labels)
         if save_plot:
-            plt.savefig(datetime.now().strftime(f"plots\\a{alpha}_b{beta}_packets_vs_flow_%d-%m-%Y_%H;%M;%S"))
+            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_a{alpha}_b{beta}_packets_vs_flow_%d-%m-%Y_%H;%M;%S"))
         if show_plot:
             plt.show()
 
@@ -196,9 +199,29 @@ class Simulation():
         plt.ylabel(error_description)
         plt.plot(alphas, approx_errors)
         if save_plot:
-            plt.savefig(datetime.now().strftime(f"plots\\approx_errors_1D_%d-%m-%Y_%H;%M;%S"))
+            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_approx_errors_1D_%d-%m-%Y_%H;%M;%S"))
         if show_plot:
             plt.show()
+    
+    def plot_approx_errors_2D(self, approx_errors, alphas, betas, show_plot, save_plot, description, error_description):
+        ax = plt.axes(projection='3d')
+        ax.set_title(description)
+        ax.set_xlabel("alpha")
+        ax.set_ylabel("beta")
+        ax.set_zlabel(error_description)
+        ax.plot_surface(alphas, betas, approx_errors, rstride=1, cstride=1,
+                cmap='viridis', edgecolor='none')
+        if save_plot:
+            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_approx_errors_2D_%d-%m-%Y_%H;%M;%S"))
+        if show_plot:
+            plt.show()
+
+def single_run(INSTANCE_NAME : str, alpha, beta, show_plot : bool, save_plot : bool):
+    simulation = Simulation(INSTANCE_NAME)
+    mf = simulation.run_multi_flow()
+    simulation.run_packet_routing(mf, alpha, beta)
+    results = simulation.compare_models(mf, alpha, beta)
+    simulation.plot_packets_vs_flow(results, alpha, beta, show_plot, save_plot)
 
 def multiple_runs(INSTANCE_NAME : str, alphas, betas, show_plot : bool, save_plot : bool, description : str):
     assert len(alphas) == len(betas), "List of alphas should have same length as list of betas"
@@ -213,9 +236,16 @@ def multiple_runs(INSTANCE_NAME : str, alphas, betas, show_plot : bool, save_plo
     simulation.plot_approx_errors_1D(approx_errors, alphas, show_plot, save_plot, description, error_description)
     print(approx_errors)
 
-def single_run(INSTANCE_NAME : str, alpha, beta, show_plot : bool, save_plot : bool):
+def multiple_runs2D(INSTANCE_NAME : str, alphas, betas, show_plot : bool, save_plot : bool, description : str):
     simulation = Simulation(INSTANCE_NAME)
     mf = simulation.run_multi_flow()
-    simulation.run_packet_routing(mf, alpha, beta)
-    results = simulation.compare_models(mf, alpha, beta)
-    simulation.plot_packets_vs_flow(results, alpha, beta, show_plot, save_plot)
+    n_alphas, n_betas = len(alphas), len(betas)
+    approx_errors = zeros((n_alphas, n_betas))
+    for alpha_id in range(n_alphas):
+        for beta_id in range(n_betas):
+            simulation.run_packet_routing(mf, alphas[alpha_id], betas[beta_id])
+            results = simulation.compare_models(mf, alphas[alpha_id], betas[beta_id])
+            approx_errors[alpha_id][beta_id], error_description = simulation.calc_approx_error(results)
+    X, Y = np.meshgrid(alphas, betas)
+    simulation.plot_approx_errors_2D(approx_errors, X, Y, show_plot, save_plot, description, error_description)
+    print(approx_errors)

@@ -1,18 +1,12 @@
-from python_impl import callSimulation
-from argparse import ArgumentParser
+from python_impl import callSimulation, parseArgs
 
 if __name__ == "__main__":
+    INSTANCE_NAME = parseArgs.parse_instance_name()
     SHOW_PLOT = True
     SAVE_PLOT = False  
-    parser = ArgumentParser(description="Compare Packet Routing to Multi-Commodity Flows Over Time")
-    parser.add_argument("instance_name", type=str, help="name of instance to run")
-    args = parser.parse_args()
-    INSTANCE_NAME = args.instance_name
     N = 8
+    DESCRIPTION = "Error with beta = (alpha)^2"
     ALPHAS = [0.8**i for i in range(N)]
-    # b = a**2
-    DESCRIPTION = "Error with b = a^2"
-    BETAS = [ALPHAS[i]**2 for i in range(N)]
+    BETAS = [ALPHAS[i]**2 for i in range(N)] # beta = alpha^2
     callSimulation.multiple_runs(INSTANCE_NAME=INSTANCE_NAME, alphas=ALPHAS, betas=BETAS,
         show_plot=SHOW_PLOT, save_plot=SAVE_PLOT, description=DESCRIPTION)
-
