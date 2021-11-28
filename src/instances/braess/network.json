@@ -1,0 +1,67 @@
+{
+    "edges": [
+        {
+            "v_from": "s",
+            "v_to": "0",
+            "transit_time": 1,
+            "capacity": {
+                "numerator": 3,
+                "denominator": 1
+            }
+        },
+        {
+            "v_from": "0",
+            "v_to": "1",
+            "transit_time": 1,
+            "capacity": {
+                "numerator": 1,
+                "denominator": 1
+            }
+        },
+        {
+            "v_from": "0",
+            "v_to": "2",
+            "transit_time": 10,
+            "capacity": {
+                "numerator": 1,
+                "denominator": 1
+            }
+        },
+        {
+            "v_from": "1",
+            "v_to": "2",
+            "transit_time": 1,
+            "capacity": {
+                "numerator": 1,
+                "denominator": 1
+            }
+        },
+        {
+            "v_from": "1",
+            "v_to": "3",
+            "transit_time": 10,
+            "capacity": {
+                "numerator": 1,
+                "denominator": 1
+            }
+        },
+        {
+            "v_from": "2",
+            "v_to": "3",
+            "transit_time": 1,
+            "capacity": {
+                "numerator": 1,
+                "denominator": 1
+            }
+        },
+        {
+            "v_from": "3",
+            "v_to": "t",
+            "transit_time": 1,
+            "capacity": {
+                "numerator": 3,
+                "denominator": 1
+            }
+        }
+    ]
+}
