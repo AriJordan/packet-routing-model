@@ -81,7 +81,7 @@ class Simulation():
             EPS = 1e-6
             FRAC_PRECISION = 100800
             # Heuristic way of converting float to fractional
-            real_capacity = capacity * alpha / beta 
+            real_capacity = capacity * alpha / beta
             numerator = round(FRAC_PRECISION * real_capacity)
             denominator = FRAC_PRECISION
             num_den_gcd = np.gcd(numerator, denominator)
@@ -155,8 +155,8 @@ class Simulation():
     def plot_packets_vs_flow(self, results: Results, alpha, beta, show_plot : bool, save_plot : bool):
         #colmaps = plt.get_cmap("autumn", N=len(commodity_ids))
         commodity_ids = list(set(results.packet_commodity_ids))
-        packet_colors = plt.get_cmap("autumn")(np.linspace(0, 0.8, 2))
-        flow_colors = plt.get_cmap("winter")(np.linspace(0, 1, 2))
+        packet_colors = plt.get_cmap("autumn")(np.linspace(0, 0.8, len(commodity_ids)))
+        flow_colors = plt.get_cmap("winter")(np.linspace(0, 1, len(commodity_ids)))
         for commodity_id in commodity_ids:
             packet_x = [results.packet_release_times[i] for i in range(len(results.packet_travel_times)) if results.packet_commodity_ids[i] == commodity_id]
             packet_y = [results.packet_travel_times[i] for i in range(len(results.packet_travel_times)) if results.packet_commodity_ids[i] == commodity_id]
@@ -206,10 +206,11 @@ class Simulation():
     def plot_approx_errors_2D(self, approx_errors, alphas, betas, show_plot, save_plot, description, error_description):
         ax = plt.axes(projection='3d')
         ax.set_title(description)
-        ax.set_xlabel("alpha")
-        ax.set_ylabel("beta")
+        ax.set_xlabel("beta")
+        ax.set_ylabel("alpha")
         ax.set_zlabel(error_description)
-        ax.plot_surface(alphas, betas, approx_errors, rstride=1, cstride=1,
+        X, Y = np.meshgrid(betas, alphas)
+        ax.plot_surface(X, Y, approx_errors, rstride=1, cstride=1,
                 cmap='viridis', edgecolor='none')
         if save_plot:
             plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_approx_errors_2D_%d-%m-%Y_%H;%M;%S"))
@@ -234,7 +235,6 @@ def multiple_runs(INSTANCE_NAME : str, alphas, betas, show_plot : bool, save_plo
         results = simulation.compare_models(mf, alphas[run_id], betas[run_id])
         approx_errors[run_id], error_description = simulation.calc_approx_error(results)
     simulation.plot_approx_errors_1D(approx_errors, alphas, show_plot, save_plot, description, error_description)
-    print(approx_errors)
 
 def multiple_runs2D(INSTANCE_NAME : str, alphas, betas, show_plot : bool, save_plot : bool, description : str):
     simulation = Simulation(INSTANCE_NAME)
@@ -243,9 +243,8 @@ def multiple_runs2D(INSTANCE_NAME : str, alphas, betas, show_plot : bool, save_p
     approx_errors = zeros((n_alphas, n_betas))
     for alpha_id in range(n_alphas):
         for beta_id in range(n_betas):
+            print(f'running simulation with alpha={alphas[alpha_id]}, beta={betas[beta_id]}')
             simulation.run_packet_routing(mf, alphas[alpha_id], betas[beta_id])
             results = simulation.compare_models(mf, alphas[alpha_id], betas[beta_id])
             approx_errors[alpha_id][beta_id], error_description = simulation.calc_approx_error(results)
-    X, Y = np.meshgrid(alphas, betas)
-    simulation.plot_approx_errors_2D(approx_errors, X, Y, show_plot, save_plot, description, error_description)
-    print(approx_errors)
+    simulation.plot_approx_errors_2D(approx_errors, alphas, betas, show_plot, save_plot, description, error_description)

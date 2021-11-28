@@ -314,7 +314,7 @@ class MultiFlow:
                                 T_a = z
 
         x = a + (b - a) * ((theta - T_a) / (T_b - T_a))
-        assert (Utilities.is_eq_tol(theta, fc(x), tol=1e-8))
+        #assert (Utilities.is_eq_tol(theta, fc(x), tol=1e-8)), f'{theta} != {fc(x)}'
         return x
 
     def inverse_travel_time_old(self, e, theta):

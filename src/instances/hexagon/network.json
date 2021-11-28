@@ -1,0 +1,148 @@
+{
+    "edges": [
+        {
+            "v_from": "s",
+            "v_to": "4",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "s",
+            "v_to": "6",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "t",
+            "v_to": "0",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "0",
+            "v_to": "3",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "0",
+            "v_to": "4",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "1",
+            "v_to": "s",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "2",
+            "v_to": "t",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "2",
+            "v_to": "1",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "3",
+            "v_to": "s",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "4",
+            "v_to": "5",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "4",
+            "v_to": "3",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "5",
+            "v_to": "t",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "5",
+            "v_to": "7",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "6",
+            "v_to": "7",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "6",
+            "v_to": "1",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        },
+        {
+            "v_from": "7",
+            "v_to": "2",
+            "transit_time": 3,
+            "capacity": {
+                "numerator": 10,
+                "denominator": 9
+            }
+        }
+    ]
+}

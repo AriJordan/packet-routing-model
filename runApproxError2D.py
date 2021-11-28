@@ -7,6 +7,7 @@ if __name__ == "__main__":
     N = 10
     DESCRIPTION = "Error as function of alpha and beta"
     ALPHAS = [i / N for i in range(1, N + 1)]
-    BETAS = ALPHAS
+    BETAS = [ALPHAS[i]**2 for i in range(N)]
+    print(BETAS)
     callSimulation.multiple_runs2D(INSTANCE_NAME=INSTANCE_NAME, alphas=ALPHAS, betas=BETAS,
         show_plot=SHOW_PLOT, save_plot=SAVE_PLOT, description=DESCRIPTION)
