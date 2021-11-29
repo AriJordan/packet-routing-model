@@ -1,2 +1,10 @@
+# Rust executable
 /target
+
+# Configuration file
 config.cfg
+
+# Python bytecode
+__pycache__/
+
+
