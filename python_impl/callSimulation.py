@@ -157,8 +157,10 @@ class Simulation():
         commodity_ids = list(set(results.packet_commodity_ids))
         packet_colors = plt.get_cmap("autumn")(np.linspace(0, 0.8, len(commodity_ids)))
         flow_colors = plt.get_cmap("winter")(np.linspace(0, 1, len(commodity_ids)))
+        max_release_time = 0
         for commodity_id in commodity_ids:
             packet_x = [results.packet_release_times[i] for i in range(len(results.packet_travel_times)) if results.packet_commodity_ids[i] == commodity_id]
+            max_release_time = max(max_release_time, max(packet_x))
             packet_y = [results.packet_travel_times[i] for i in range(len(results.packet_travel_times)) if results.packet_commodity_ids[i] == commodity_id]
             plt.plot(packet_x, packet_y, color=packet_colors[commodity_id], marker='s', linestyle="none")
             flow_x = [results.flow_release_times[i] for i in range(len(results.flow_travel_times)) if results.flow_commodity_ids[i] == commodity_id]
@@ -166,6 +168,7 @@ class Simulation():
             plt.plot(flow_x, flow_y, color=flow_colors[commodity_id])
         plt.title("packets vs flow travel times")
         plt.xlabel("release time")
+        plt.xlim(right=max_release_time * 1.01)
         plt.ylabel("travel time")
         packet_flow_labels = []
         for commodity_id in commodity_ids:
