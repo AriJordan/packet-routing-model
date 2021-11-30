@@ -7,4 +7,5 @@ config.cfg
 # Python bytecode
 __pycache__/
 
-
+# Plots (from Matplotlib)
+plots/
