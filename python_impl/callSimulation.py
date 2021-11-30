@@ -176,7 +176,7 @@ class Simulation():
             packet_flow_labels.append("flow " + str(commodity_id))
         plt.legend(packet_flow_labels)
         if save_plot:
-            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_a{alpha}_b{beta}_packets_vs_flow_%d-%m-%Y_%H;%M;%S"))
+            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_a{alpha}_b{beta}_packets_vs_flow_%d-%m-%Y_%H-%M-%S"))
         if show_plot:
             plt.show()
 
@@ -202,7 +202,7 @@ class Simulation():
         plt.ylabel(error_description)
         plt.plot(alphas, approx_errors)
         if save_plot:
-            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_approx_errors_1D_%d-%m-%Y_%H;%M;%S"))
+            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_approx_errors_1D_%d-%m-%Y_%H-%M-%S"))
         if show_plot:
             plt.show()
     
@@ -216,7 +216,7 @@ class Simulation():
         ax.plot_surface(X, Y, approx_errors, rstride=1, cstride=1,
                 cmap='viridis', edgecolor='none')
         if save_plot:
-            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_approx_errors_2D_%d-%m-%Y_%H;%M;%S"))
+            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_approx_errors_2D_%d-%m-%Y_%H-%M-%S"))
         if show_plot:
             plt.show()
 
