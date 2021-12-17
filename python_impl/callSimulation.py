@@ -116,6 +116,7 @@ class Simulation():
             json.dump(data, packets_out_file, indent=4)
 
     def run_packet_routing(self, mf : MultiFlow, alpha, beta):
+        print(f'running packet routing simulation with alpha={alpha}, beta={beta}')
         self.write_discrete_jsons(mf, alpha, beta)
         try: 
             subprocess.run([self.rust_executable_directory + "routing.exe", self.instance_directory])
@@ -246,7 +247,6 @@ def multiple_runs2D(INSTANCE_NAME : str, alphas, betas, show_plot : bool, save_p
     approx_errors = zeros((n_alphas, n_betas))
     for alpha_id in range(n_alphas):
         for beta_id in range(n_betas):
-            print(f'running simulation with alpha={alphas[alpha_id]}, beta={betas[beta_id]}')
             simulation.run_packet_routing(mf, alphas[alpha_id], betas[beta_id])
             results = simulation.compare_models(mf, alphas[alpha_id], betas[beta_id])
             approx_errors[alpha_id][beta_id], error_description = simulation.calc_approx_error(results)
