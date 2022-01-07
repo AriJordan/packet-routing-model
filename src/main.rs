@@ -15,7 +15,10 @@ fn main() {
         },
         // one argument passed
         2 => {
-            let instance_directory : String = args[1].parse().unwrap();
+            let mut instance_directory : String = args[1].parse().unwrap();
+            if !instance_directory.ends_with("/"){
+                instance_directory = instance_directory + "/";
+            }
             let (mut network, vertex_id_to_name) = read_json::read_jsons(&instance_directory);
             network.run_simulation();
             write_json::write_json(&network, vertex_id_to_name, &(instance_directory.to_owned() + "results.json"));
