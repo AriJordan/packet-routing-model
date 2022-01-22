@@ -1,0 +1,2 @@
+rate	interval    path
+ 1	0,10 s,t

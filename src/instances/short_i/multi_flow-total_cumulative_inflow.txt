@@ -1,0 +1,2 @@
+arc total_cumulative_inflow_function
+s,t (0, 0),(10, 10),(inf, 10)

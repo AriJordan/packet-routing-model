@@ -1,0 +1,84 @@
+{
+    "packets": [
+        {
+            "commodity_id": 0,
+            "release_time": 1,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 2,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 3,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 4,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 5,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 6,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 7,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 8,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 9,
+            "path": [
+                "s",
+                "t"
+            ]
+        },
+        {
+            "commodity_id": 0,
+            "release_time": 10,
+            "path": [
+                "s",
+                "t"
+            ]
+        }
+    ]
+}
