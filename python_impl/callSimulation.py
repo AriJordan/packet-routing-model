@@ -105,7 +105,7 @@ class Simulation():
             (start_time, end_time, rate) = mf.pathCommodityDict[path]
             packets_generated = 0
             for current_time in range(ceil(start_time / alpha), floor(end_time / alpha) + 1):
-                for packet in range(0, floor((current_time - (start_time / alpha)) * alpha / beta * rate) - packets_generated):
+                for packet in range(0, floor((current_time - (start_time / alpha)) * alpha / beta * rate + EPS) - packets_generated):
                     data["packets"].append({
                         "commodity_id" : commodity_id,
                         "release_time" : current_time,
@@ -167,17 +167,19 @@ class Simulation():
             flow_x = [results.flow_release_times[i] for i in range(len(results.flow_travel_times)) if results.flow_commodity_ids[i] == commodity_id]
             flow_y = [results.flow_travel_times[i] for i in range(len(results.flow_travel_times)) if results.flow_commodity_ids[i] == commodity_id]
             plt.plot(flow_x, flow_y, color=flow_colors[commodity_id])
-        plt.title("packets vs flow travel times")
+        plt.title(f"packets vs flow travel times, a={alpha}, b={beta}")
         plt.xlabel("release time")
         plt.xlim(right=max_release_time * 1.01)
         plt.ylabel("travel time")
         packet_flow_labels = []
         for commodity_id in commodity_ids:
-            packet_flow_labels.append("packets " + str(commodity_id))
-            packet_flow_labels.append("flow " + str(commodity_id))
+            packet_flow_labels.append("packets " + str(commodity_id + 1))
+            packet_flow_labels.append("flow " + str(commodity_id + 1))
         plt.legend(packet_flow_labels)
         if save_plot:
-            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_a{alpha}_b{beta}_packets_vs_flow_%d-%m-%Y_%H-%M-%S"))
+            salpha = str(alpha).replace(".", "-")
+            sbeta = str(beta).replace(".", "-")
+            plt.savefig(datetime.now().strftime(f"plots\\{self.instance_name}_a{salpha}_b{sbeta}_packets_vs_flow_%d-%m-%Y_%H-%M-%S"))
         if show_plot:
             plt.show()
 
