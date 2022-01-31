@@ -3,7 +3,7 @@ from python_impl import callSimulation, parseArgs
 if __name__ == "__main__":
     INSTANCE_NAME = parseArgs.parse_instance_name()
     SHOW_PLOT = True
-    SAVE_PLOT = False  
+    SAVE_PLOT = True 
     N = 10
     DESCRIPTION = "Error with beta = (alpha)^2"
     ALPHAS = [(i+1)/N for i in range(N)]
